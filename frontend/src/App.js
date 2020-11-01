@@ -1,12 +1,12 @@
 import React from 'react';
 import './App.css';
-import Hexagon from './Hexagon';
+import GameMap from './GameMap';
 
-  const App = () => (
-      <div className="App">
+const App = () => (
+  <div className="App">
 
-    <Hexagon></Hexagon>
-      </div>
-  );
+    <GameMap></GameMap>
+  </div>
+);
 
-  export default App;
+export default App;
