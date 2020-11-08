@@ -4,7 +4,6 @@ import GameMap from './GameMap';
 
 const App = () => (
   <div className="App">
-
     <GameMap></GameMap>
   </div>
 );
