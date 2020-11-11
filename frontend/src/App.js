@@ -1,10 +1,13 @@
 import React from 'react';
-import './App.css';
 import GameMap from './GameMap';
+import ActionComponent from './ActionComponent';
+
+import './App.scss';
 
 const App = () => (
-  <div className="App">
+  <div className="app-wrapper">
     <GameMap></GameMap>
+    <ActionComponent></ActionComponent>
   </div>
 );
 
