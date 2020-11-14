@@ -1,9 +1,11 @@
 import React from 'react';
-import './App.css';
 import GameMap from './GameMap';
+import SettlementSetups from './SettlementSetups';
+
+import './App.scss';
 
 const App = () => (
-  <div className="App">
+  <div className="app-wrapper">
     <GameMap></GameMap>
   </div>
 );
