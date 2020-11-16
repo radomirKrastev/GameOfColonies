@@ -7,6 +7,7 @@ import { SCREEN_LAYOUT, RADIUS_SIZE } from './GameMapConstants';
 
 import Hexagon from './Hexagon';
 import SettlementSetups from './SettlementSetups';
+import { test } from './actions/testActions';
 
 import './GameMap.scss';
 
@@ -25,6 +26,7 @@ const HexagonGrid = () => {
 
     const toggleSettlementTargetsHandler = () => {
         setMapTargetsVisible(!mapTargetsVisible);
+        test();
     }
 
     return <div className="game-map-wrapper">
