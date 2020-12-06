@@ -2,20 +2,11 @@ import React from 'react';
 import * as PIXI from "pixi.js";
 import { Sprite } from '@inlet/react-pixi';
 
-import { mapTilesBackground } from './images';
-
-const Hexagon = ({ hexagonCorners }) => {
-    let mapTiles = mapTilesBackground.slice(0);
-    //Shuffle Tiles
-    const shuffleArray = array => {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-    };
-
-    shuffleArray(mapTiles);
-
+const Hexagon = ({ 
+    hexagonCorners,
+    mapTiles,
+    tileNumber
+}) => {
     //Find the center of the hexagon on the x axis
     let centerX = hexagonCorners.reduce((acc, xCorner) => {
         acc += xCorner.x;
@@ -29,7 +20,7 @@ const Hexagon = ({ hexagonCorners }) => {
     }, 0) / 6;
 
     // Draw the hexagon mask
-    let mask = new PIXI.Graphics();
+    let mask = new PIXI.Graphics();    
 
     mask.beginFill(0xff3300);
 
@@ -41,8 +32,7 @@ const Hexagon = ({ hexagonCorners }) => {
     mask.lineTo(hexagonCorners[0].x, hexagonCorners[0].y);
 
     //Generate the sprite
-    let tile = mapTiles.pop();
-    // console.log(mapTiles);
+    let tile = mapTiles[tileNumber];
     const sprite = PIXI.Texture.from(tile);
     sprite.mask = mask
 

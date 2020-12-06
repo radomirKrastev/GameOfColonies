@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Stage } from '@inlet/react-pixi';
 
@@ -21,7 +21,18 @@ gridHexesCoordinatesMap.slice().forEach(hexCoordinates => {
 
 // console.log(gridHexesCornersMap);
 
-const HexagonGrid = () => {
+const HexagonGrid = ({
+    socket
+}) => {
+    const [mapTiles, setMapTiles] = useState([]);
+
+    useEffect(() => {
+        socket.on('game on', mapTilesShuffled => {
+            setMapTiles(mapTilesShuffled);
+            console.log(mapTiles);
+        });
+    }, []);
+
     const [mapTargetsVisible, setMapTargetsVisible] = useState(false);
 
     const toggleSettlementTargetsHandler = () => {
@@ -30,12 +41,17 @@ const HexagonGrid = () => {
     }
 
     return <div className="game-map-wrapper">
-        <Stage className="game-map-stage" width={1000} height={470} options={{ antialias: true, backgroundColor: 0xeef1f5 }}>
-            {gridHexesCornersMap.map((x, i) => {
-                return <Hexagon key={i} hexagonCorners={x}></Hexagon>
-            })}
-            {mapTargetsVisible ? <SettlementSetups gridHexesCornersMap={gridHexesCornersMap}></SettlementSetups> : null}
-        </Stage>
+        {
+            mapTiles.length > 0
+                ? <Stage className="game-map-stage" width={1000} height={470} options={{ antialias: true, backgroundColor: 0xeef1f5 }}>
+                    {gridHexesCornersMap.map((x, i) => {
+                        return <Hexagon mapTiles={mapTiles} tileNumber={i} key={i} hexagonCorners={x}></Hexagon>
+                    })}
+                    {mapTargetsVisible ? <SettlementSetups gridHexesCornersMap={gridHexesCornersMap}></SettlementSetups> : null}
+                </Stage>
+                : null
+        }
+
         <div className="show-settlement-targets">
             <button onClick={() => toggleSettlementTargetsHandler()}>TEST Button</button>
         </div>
