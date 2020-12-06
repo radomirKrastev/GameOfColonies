@@ -70,3 +70,31 @@ export const generateHexagonalGrid = radiusSize => {
 
     return hexCoordinates;
 };
+
+// Here we take all gridHexesCornersMap and reduce only the unique ones
+export const generateUniqueCornerCoordinates = (gridHexesCornersMap) => {
+    return gridHexesCornersMap.reduce((uniqueCorners, hexagonCorners) => {
+        hexagonCorners.forEach(corner => {
+    
+            //Check if hexagon corner pixels are equal
+            //This is not the ideal solution, will be improved in the future!
+            const areCornersEqual = (a, b, c, d) => {
+                let firstCornerAbsoluteValue = Math.abs(a + b);
+                let secondCornerAbsoluteValue = Math.abs(c + d);
+                let cornersDifference = Math.abs(firstCornerAbsoluteValue - secondCornerAbsoluteValue);
+    
+                if (firstCornerAbsoluteValue == secondCornerAbsoluteValue || cornersDifference < 0.0000001) {
+                    return true;
+                }
+    
+                return false;
+            }
+    
+            if (!uniqueCorners.some(a => areCornersEqual(a.x, a.y, corner.x, corner.y))) {
+                uniqueCorners.push({x: corner.x, y:corner.y});
+            }
+        })
+    
+        return uniqueCorners;
+    }, []);
+};
