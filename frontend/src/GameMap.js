@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 
 import { Stage } from '@inlet/react-pixi';
 
-import { hex, polygonCorners, generateHexagonalGrid } from './hexagonMathFunctions';
+import { hex, polygonCorners, generateHexagonalGrid, generateUniqueCornerCoordinates } from './hexagonMathFunctions';
 import { SCREEN_LAYOUT, RADIUS_SIZE } from './GameMapConstants';
 
 import Hexagon from './Hexagon';
-import SettlementSetups from './SettlementSetups';
+import SettlementSetup from './SettlementSetup';
+import PopulatedCorners from './PopulatedCorners';
 import { test } from './actions/testActions';
 
 import './GameMap.scss';
@@ -19,7 +20,9 @@ gridHexesCoordinatesMap.slice().forEach(hexCoordinates => {
     gridHexesCornersMap.push(polygonCorners(SCREEN_LAYOUT, hex(hexCoordinates.q, hexCoordinates.r, hexCoordinates.s)));
 });
 
-// console.log(gridHexesCornersMap);
+const uniqueHexagonCornerCoordinates = generateUniqueCornerCoordinates(gridHexesCornersMap);
+
+console.log(uniqueHexagonCornerCoordinates);
 
 const HexagonGrid = ({
     socket
@@ -47,7 +50,27 @@ const HexagonGrid = ({
                     {gridHexesCornersMap.map((x, i) => {
                         return <Hexagon mapTiles={mapTiles} tileNumber={i} key={i} hexagonCorners={x}></Hexagon>
                     })}
-                    {mapTargetsVisible ? <SettlementSetups gridHexesCornersMap={gridHexesCornersMap}></SettlementSetups> : null}
+
+                    {mapTargetsVisible
+                        ? uniqueHexagonCornerCoordinates.map((cornerCoordinates, i) => {
+                            return <SettlementSetup
+                            key={i}
+                            cornerCoordinates={cornerCoordinates}
+                            setMapTargetsVisible={setMapTargetsVisible} 
+                            />
+                        })
+                        : null
+                    }
+                    
+                    {!mapTargetsVisible
+                        ? uniqueHexagonCornerCoordinates.map((cornerCoordinates, i) => {
+                            return <PopulatedCorners
+                            key={i}
+                            cornerCoordinates={cornerCoordinates}
+                            />
+                        })
+                        : null
+                    }
                 </Stage>
                 : null
         }
