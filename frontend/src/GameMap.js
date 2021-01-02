@@ -7,6 +7,7 @@ import { SCREEN_LAYOUT, RADIUS_SIZE } from './GameMapConstants';
 
 import Hexagon from './Hexagon';
 import SettlementSetup from './SettlementSetup';
+import PopulatedCorners from './PopulatedCorners';
 import { test } from './actions/testActions';
 
 import './GameMap.scss';
@@ -52,7 +53,21 @@ const HexagonGrid = ({
 
                     {mapTargetsVisible
                         ? uniqueHexagonCornerCoordinates.map((cornerCoordinates, i) => {
-                            return <SettlementSetup cornerCoordinates={cornerCoordinates} key={i}></SettlementSetup>
+                            return <SettlementSetup
+                            key={i}
+                            cornerCoordinates={cornerCoordinates}
+                            setMapTargetsVisible={setMapTargetsVisible} 
+                            />
+                        })
+                        : null
+                    }
+                    
+                    {!mapTargetsVisible
+                        ? uniqueHexagonCornerCoordinates.map((cornerCoordinates, i) => {
+                            return <PopulatedCorners
+                            key={i}
+                            cornerCoordinates={cornerCoordinates}
+                            />
                         })
                         : null
                     }

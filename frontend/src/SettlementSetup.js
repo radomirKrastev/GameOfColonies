@@ -4,7 +4,10 @@ import * as PIXI from "pixi.js";
 
 import './SettlementSetup.scss';
 
-const SettlementSetup = ({ cornerCoordinates }) => {
+const SettlementSetup = ({ 
+    cornerCoordinates,
+    setMapTargetsVisible,
+}) => {
     const drawCornerTargets = useCallback((g) => {
         g.clear();
 
@@ -14,9 +17,11 @@ const SettlementSetup = ({ cornerCoordinates }) => {
         g.endFill();
 
         g.interactive = true;
-        g.mouseover = function (mouseData) {
-            console.log("MOUSE OVER ");
-        }
+
+        g.click = function (mouseData) {
+            console.log("MOUSE CLICK ", mouseData, cornerCoordinates);
+            setMapTargetsVisible(false);
+        }; 
     }, [cornerCoordinates]);
 
     const hitArea = new PIXI.Circle(cornerCoordinates.x, cornerCoordinates.y, 5);
