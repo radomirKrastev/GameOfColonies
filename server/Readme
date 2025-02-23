@@ -1,0 +1,2 @@
+6. Run `npx tsc` to compile TypeScript to JavaScript.
+7. Run `node dist/index.js` to start the server.
