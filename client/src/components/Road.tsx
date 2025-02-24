@@ -5,58 +5,68 @@ import { Point } from "../interfaces";
 function Road() {
     const { possibleRoadTargets, gameMapLayout, phaserRef } = useAppContext();
     const scene = phaserRef.current!.scene!;
+    let firstTimeChoosing = true;
 
     const chooseRoad = () => {
         const roadPositions = gameMapLayout!.roadPositions;
 
-        for (let i = 0; i < roadPositions.length; i++) {
-            const graphics = new GameObjects.Graphics(scene);
-
-            graphics.setDefaultStyles({
-                lineStyle: { width: 2, color: 0xf000000, alpha: 1 },
-                fillStyle: { color: 0xffffff, alpha: 1 },
-            });
-
-            const circle = new Phaser.Geom.Circle(
-                (roadPositions[i].a.x + roadPositions[i].b.x) / 2,
-                (roadPositions[i].a.y + roadPositions[i].b.y) / 2,
-                20
-            );
-            graphics.strokeCircleShape(circle);
-            graphics.fillCircleShape(circle);
-
-            graphics.setInteractive(circle, (a, x, y) => {
-                if (
-                    a.radius > 0 &&
-                    x >= a.left &&
-                    x <= a.right &&
-                    y >= a.top &&
-                    y <= a.bottom
-                ) {
-                    return true;
-                }
+        if(firstTimeChoosing) {
+          firstTimeChoosing = false;
+          for (let i = 0; i < roadPositions.length; i++) {
+              const graphics = new GameObjects.Graphics(scene);
   
-                return false;
-            });
-
-            graphics.closePath();
-            graphics.fillPath();
-            possibleRoadTargets[i] = graphics;
-            graphics.addListener("pointerdown", (e) => {
-                const removeIndexRoad = possibleRoadTargets.indexOf(graphics);
-
-                if (removeIndexRoad !== -1) {
-                    possibleRoadTargets[removeIndexRoad].setVisible(false);
-
-                    possibleRoadTargets.splice(removeIndexRoad, 1);
-
-                    possibleRoadTargets.forEach((x) => x.setVisible(false));
-                    buildRoad(roadPositions[i]);
-                }
-            });
-
-            scene.add.existing(graphics);
+              graphics.setDefaultStyles({
+                  lineStyle: { width: 2, color: 0xf000000, alpha: 1 },
+                  fillStyle: { color: 0xffffff, alpha: 1 },
+              });
+  
+              const circle = new Phaser.Geom.Circle(
+                  (roadPositions[i].a.x + roadPositions[i].b.x) / 2,
+                  (roadPositions[i].a.y + roadPositions[i].b.y) / 2,
+                  20
+              );
+              graphics.strokeCircleShape(circle);
+              graphics.fillCircleShape(circle);
+  
+              graphics.setInteractive(circle, (a, x, y) => {
+                  if (
+                      a.radius > 0 &&
+                      x >= a.left &&
+                      x <= a.right &&
+                      y >= a.top &&
+                      y <= a.bottom
+                  ) {
+                      return true;
+                  }
+    
+                  return false;
+              });
+  
+              graphics.closePath();
+              graphics.fillPath();
+              possibleRoadTargets[i] = graphics;
+              graphics.addListener("pointerdown", () => {
+                  const removeIndexRoad = possibleRoadTargets.indexOf(graphics);
+  
+                  if (removeIndexRoad !== -1) {
+                      possibleRoadTargets[removeIndexRoad].setVisible(false);
+  
+                      console.log({possibleRoadTargets, removeIndexRoad})
+                      possibleRoadTargets.splice(removeIndexRoad, 1);
+                      console.log({possibleRoadTargets})
+                      possibleRoadTargets.forEach((x) => x.setVisible(false));
+                      buildRoad(roadPositions[i]);
+                  }
+              });
+  
+              scene.add.existing(graphics);
+          }
+        } else {
+          possibleRoadTargets.forEach(possibleRoad => {
+            possibleRoad.setVisible(true);
+          });
         }
+
     };
 
     const buildRoad = (roadPosition: { a: Point; b: Point }) => {
@@ -88,4 +98,5 @@ function Road() {
 }
 
 export default Road;
+
 

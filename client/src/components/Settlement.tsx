@@ -10,6 +10,10 @@ function Settlement() {
         phaserRef,
     } = useAppContext();
     const scene = phaserRef.current!.scene!;
+    const currentSettlements: {
+        graphics: GameObjects.Graphics;
+        corner: Point;
+    }[] = [];
 
     let firstTimeChoosing = true;
 
@@ -20,6 +24,7 @@ function Settlement() {
             lineStyle: { width: 2, color: 0xffc0cb, alpha: 1 },
             fillStyle: { color: 0xffc0cb, alpha: 1 },
         });
+        graphics.setDepth(2);
 
         const rectangle = new Phaser.Geom.Rectangle(
             hexagonCorner.x - 15,
@@ -42,6 +47,7 @@ function Settlement() {
             lineStyle: { width: 2, color: 0xffc0cb, alpha: 1 },
             fillStyle: { color: 0xffc0cb, alpha: 1 },
         });
+        graphics.setDepth(2);
 
         const triangle = new Phaser.Geom.Triangle(
             hexagonCorner.x,
@@ -58,11 +64,16 @@ function Settlement() {
         graphics.closePath();
         graphics.fillPath();
         scene.add.existing(graphics);
+        currentSettlements.push({ graphics, corner: hexagonCorner });
     };
 
     const chooseSettlement = () => {
         const uniqueHexagonCornerCoordinates =
             gameMapLayout!.uniqueHexagonCornerCoordinates;
+        
+            possibleCityTargets.forEach((possibleCity) => {
+                possibleCity.setVisible(false);
+            });
 
         if (firstTimeChoosing) {
             for (let i = 0; i < uniqueHexagonCornerCoordinates.length; i++) {
@@ -81,7 +92,6 @@ function Settlement() {
                 graphics.strokeCircleShape(circle);
                 graphics.fillCircleShape(circle);
                 graphics.setInteractive(circle, (a, x, y) => {
-                    // console.log({a, b, c, d})
                     if (
                         a.radius > 0 &&
                         x >= a.left &&
@@ -97,22 +107,15 @@ function Settlement() {
                 graphics.closePath();
                 graphics.fillPath();
                 possibleSettlementTargets[i] = graphics;
-                graphics.addListener("pointerdown", (e) => {
+                graphics.addListener("pointerdown", () => {
                     const removeIndexSettlement =
                         possibleSettlementTargets.indexOf(graphics);
 
                     if (removeIndexSettlement !== -1) {
-                        console.log(
-                            {
-                                possibleSettlementTargets,
-                                removeIndex: removeIndexSettlement,
-                            },
-                            possibleSettlementTargets[removeIndexSettlement],
-                            removeIndexSettlement
-                        );
                         possibleSettlementTargets[
                             removeIndexSettlement
                         ].setVisible(false);
+
                         possibleCityTargets.push(
                             possibleSettlementTargets[removeIndexSettlement]
                         );
@@ -130,13 +133,18 @@ function Settlement() {
                             possibleCityTargets.indexOf(graphics);
 
                         if (removeIndexCity) {
-                            possibleCityTargets[removeIndexCity].setVisible(
-                                false
-                            );
-                            console.log(
-                                "city",
-                                possibleCityTargets[removeIndexCity]
-                            );
+                            possibleCityTargets.forEach((cityTarget) => {
+                                cityTarget.setVisible(false);
+                            });
+
+                            possibleCityTargets.splice(removeIndexCity, 1);
+
+                            const settlementToRemove = currentSettlements.find(x => x.corner === uniqueHexagonCornerCoordinates[i]);
+
+                            if (settlementToRemove) {
+                                settlementToRemove.graphics.destroy(true);
+                            }
+                            
                             buildCity(uniqueHexagonCornerCoordinates[i]);
                         }
                     }
