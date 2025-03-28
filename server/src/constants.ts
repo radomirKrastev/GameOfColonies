@@ -5,7 +5,7 @@ dotenv.config();
 
 // exports.DB_URL = `mongodb+srv://radomir:${MONGO_PASSWORD}@cluster0.17orc.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`;
 // exports.API_PORT = API_PORT;
-export const API_PORT = 8000;
+export const API_PORT = 3000;
 // export const BOARD_RADIUS_SIZE = 2;
 
 // // point args = width, height

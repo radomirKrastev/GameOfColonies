@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: socket-server-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: socket-server
+  template:
+    metadata:
+      labels:
+        app: socket-server
+    spec:
+      containers:
+        - name: socket-server
+          image: rkrastev/socket-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: socket-server-srv
+spec:
+  selector:
+    app: socket-server
+  ports:
+    - name: socket-server
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

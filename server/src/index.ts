@@ -56,7 +56,7 @@ app.use(routes);
 // });
 
 app.listen(API_PORT, () => {
-  console.log(`Api listening on port ${API_PORT}!`);
+  console.log(`Api listening on port ${API_PORT}!!`);
 });
 
 // server.listen(Number(API_PORT) + 1, () => {

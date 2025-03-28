@@ -1,0 +1,20 @@
+{
+  "name": "socketserver",
+  "version": "1.0.0",
+  "description": "in game player interaction mechanics communication",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc",
+    "start": "ts-node-dev src/index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "ts-node-dev": "^2.0.0"
+  },
+  "dependencies": {
+    "socket.io": "^4.8.1"
+  }
+}
