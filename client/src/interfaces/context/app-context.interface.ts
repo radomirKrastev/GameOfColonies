@@ -1,13 +1,9 @@
-import { GameObjects } from "phaser";
-import { GameMapLayout } from "../game-map-layout.interface";
-import { IRoad } from "../road.interface";
-import { IRefPhaserGame } from "../../game/PhaserGame";
+import { DefaultEventsMap } from "@socket.io/component-emitter";
+import { Socket } from "socket.io-client";
 
 export interface IAppContext {
-    gameMapLayout: GameMapLayout;
-    possibleSettlementTargets: GameObjects.Graphics[];
-    possibleCityTargets: GameObjects.Graphics[];
-    possibleRoadTargets: GameObjects.Graphics[];
-    roadsBuild: IRoad[];
-    phaserRef: React.MutableRefObject<IRefPhaserGame | null>;
+    socket: Socket<DefaultEventsMap, DefaultEventsMap>;
+    //TODO set type
+    rooms: { room: string, playersCount: number }[];
 }
+

@@ -1,5 +1,5 @@
 import { GameObjects } from "phaser";
-import { useAppContext } from "./App";
+import { useGameContext } from "./Game";
 import { Point } from "../interfaces";
 
 function Settlement() {
@@ -8,7 +8,7 @@ function Settlement() {
         possibleCityTargets,
         gameMapLayout,
         phaserRef,
-    } = useAppContext();
+    } = useGameContext();
     const scene = phaserRef.current!.scene!;
     const currentSettlements: {
         graphics: GameObjects.Graphics;

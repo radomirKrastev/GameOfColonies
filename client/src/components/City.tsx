@@ -1,7 +1,7 @@
-import { useAppContext } from "./App";
+import { useGameContext } from "./Game";
 
 function City() {
-    const { possibleCityTargets, possibleSettlementTargets } = useAppContext();
+    const { possibleCityTargets, possibleSettlementTargets } = useGameContext();
 
     const chooseCity = () => {
       possibleSettlementTargets.forEach((x) => x.setVisible(false));

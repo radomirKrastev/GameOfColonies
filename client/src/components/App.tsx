@@ -1,75 +1,48 @@
-import { useRef, useEffect, useState, createContext, useContext } from "react";
-import { IRefPhaserGame, PhaserGame } from "../game/PhaserGame";
-import { GameObjects } from "phaser";
-import { fetchGameMapLayout } from "../services";
-import { GameMapLayout, IRoad } from "../interfaces";
+import { io, Socket } from "socket.io-client";
+import { useEffect, useState, createContext, useContext } from "react";
 import { IAppContext } from "../interfaces/context";
-import Settlement from "./Settlement";
-import Road from "./Road";
-import City from "./City";
+import { DefaultEventsMap } from "@socket.io/component-emitter";
+import Router from "./Router.tsx";
 
 export const AppContext = createContext<IAppContext>({} as IAppContext);
 
 function App() {
-    //  References to the PhaserGame component (game and scene are exposed)
-    const phaserRef = useRef<IRefPhaserGame | null>(null);
-    const [gameMapLayout, setGameMapLayout] = useState<GameMapLayout | null>(
-        null
-    );
-    const [isSceneReady, setIsSceneReady] = useState<boolean>(false);
-    const possibleSettlementTargets: GameObjects.Graphics[] = new Array(56);
-    const possibleCityTargets: GameObjects.Graphics[] = new Array(4);
-    const possibleRoadTargets: GameObjects.Graphics[] = new Array(56);
-    const roadsBuild: IRoad[] = new Array(60);
+  const [socket, setSocket] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
+  //TODO set type
+  const [rooms, setRooms] = useState<{ room: string, playersCount: number }[]>([]);
 
-    useEffect(() => {
-        getGameMapLayout();
-    }, []);
+  useEffect(() => {
+    const socketInstance = io("https://gameofcolonies.dev", {
+      path: "/socket/",
+      transports: ["websocket", "polling"],
+    });
+    socketInstance.on("connect", () => {
+      console.log("connection success");
+    });
 
-    const getGameMapLayout = async () => {
-        const response = await fetchGameMapLayout();
+    socketInstance.on("rooms-available", (arg) => {
+      console.log(arg)
+      console.log(`console.log: ${JSON.stringify(arg, null, 2)}`);
+      setRooms(arg)
+    });
 
-        setGameMapLayout(response);
-    };
+    setSocket(socketInstance);
+  }, []);
 
-    return (
-        <div id="app">
-            {gameMapLayout && (
-                <>
-                    <PhaserGame
-                        gameMapLayout={gameMapLayout}
-                        ref={phaserRef}
-                        setIsSceneReady={setIsSceneReady}
-                    />
-                    {isSceneReady && (
-                        <AppContext.Provider
-                            value={{
-                                gameMapLayout,
-                                possibleSettlementTargets,
-                                possibleCityTargets,
-                                possibleRoadTargets,
-                                roadsBuild,
-                                phaserRef,
-                            }}
-                        >
-                            <Settlement />
-
-                            <Road />
-
-                            <City />
-                        </AppContext.Provider>
-                    )}
-                </>
-            )}
-        </div>
-    );
+  return (
+    <>
+      {socket && <AppContext.Provider value={{ socket, rooms }}>
+        <Router />
+      </AppContext.Provider>}
+    </>
+  );
 }
 
 export default App;
 
 export const useAppContext = () => {
-    const context = useContext(AppContext);
+  const context = useContext(AppContext);
 
-    return context;
+  return context;
 };
 

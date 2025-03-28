@@ -2,7 +2,7 @@ import { GameMapLayout } from "../interfaces";
 
 export const fetchGameMapLayout = async (): Promise<GameMapLayout> => {
     try {
-        const response = await fetch("http://localhost:8000/game/map");
+        const response = await fetch("http://localhost:3000/game/map");
         const gameMapLayout = await response.json();
         console.log({gameMapLayout})
         return gameMapLayout;

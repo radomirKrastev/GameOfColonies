@@ -1,9 +1,9 @@
 import { GameObjects } from "phaser";
-import { useAppContext } from "./App";
+import { useGameContext } from "./Game";
 import { Point } from "../interfaces";
 
 function Road() {
-    const { possibleRoadTargets, gameMapLayout, phaserRef } = useAppContext();
+    const { possibleRoadTargets, gameMapLayout, phaserRef } = useGameContext();
     const scene = phaserRef.current!.scene!;
     let firstTimeChoosing = true;
 
