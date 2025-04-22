@@ -1,8 +1,8 @@
 import express from "express";
-import gameMapController from './controllers/game-map.controller';
+import gamesController from './controllers/games.controller';
 const router = express.Router();
 
-router.use('/api/game', gameMapController);
+router.use('/api/games', gamesController);
 
 router.get("/api", (req, res) => {
   res.json({ message: "It's working... v3" });

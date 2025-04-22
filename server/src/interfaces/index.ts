@@ -1,3 +1,4 @@
+export * from './dto';
 export * from './hex-coordinates.interface';
 export * from './point.interface';
 export * from './orientation.interace';

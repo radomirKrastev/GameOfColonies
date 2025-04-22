@@ -36,7 +36,7 @@ function Lobby({ isCreator }: { isCreator: boolean }) {
 
       </div>
       {isCreator && <button
-        onClick={() => {
+        onClick={async () => {
           console.log(socket);
           socket.emit("game-start", params.lobbyId, () => {
             navigate(`/game/${params.lobbyId}`);

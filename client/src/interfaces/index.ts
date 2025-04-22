@@ -7,3 +7,6 @@ export * from './tile.interface';
 export * from './game-map-layout.interface';
 export * from './game-map.interface';
 export * from './context';
+export * from './create-game-request.interface';
+export * from './game-response.interface';
+export * from './join-game-request.interface';
