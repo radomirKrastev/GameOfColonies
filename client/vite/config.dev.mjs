@@ -8,7 +8,7 @@ export default defineConfig({
         react(),
     ],
     server: {
-        allowedHosts: ['gameofcolonies.dev'],
+        allowedHosts: ['gameofcolonies.com'],
         host: "0.0.0.0", // ensuring it binds on all network interfaces (otherwise problems in docker)
         port: 3000
     }

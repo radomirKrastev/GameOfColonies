@@ -10,6 +10,6 @@ export interface IAppContext {
       maxPlayers: number;
       playersCount: number;
     }[];
-    playerId: string;
+    // playerId: string;
 }
 

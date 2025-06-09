@@ -85,7 +85,7 @@ import { GameCreatedListener } from "./events";
 
 const io = new Server({
   cors: {
-    origin: ["http://localhost:3000", "https://gameofcolonies.dev/"],
+    origin: ["http://localhost:3000", "https://gameofcolonies.com/"],
   },
 });
 
@@ -136,18 +136,18 @@ const emitAvailableRooms = async (socket: Socket) => {
 
 io.listen(3000, { path: '/socket' });
 
-const start = async () => {
-  await natsWrapper.connect('gameofcolonies', '456', "http://nats-srv:4222");
+// const start = async () => {
+//   await natsWrapper.connect('gameofcolonies', '456', "http://nats-srv:4222");
 
-  natsWrapper.client.on("close", () => {
-    console.log("NATS connection closed!");
-    process.exit();
-  });
+//   natsWrapper.client.on("close", () => {
+//     console.log("NATS connection closed!");
+//     process.exit();
+//   });
 
-  new GameCreatedListener(natsWrapper.client).listen();
+//   new GameCreatedListener(natsWrapper.client).listen();
 
-  process.on("SIGINT", () => natsWrapper.client.close());
-  process.on("SIGTERM", () => natsWrapper.client.close());
-};
+//   process.on("SIGINT", () => natsWrapper.client.close());
+//   process.on("SIGTERM", () => natsWrapper.client.close());
+// };
 
-start();
+// start();

@@ -6,6 +6,7 @@ function Settlement() {
     const {
         possibleSettlementTargets,
         possibleCityTargets,
+        possibleRoadTargets,
         gameMapLayout,
         phaserRef,
     } = useGameContext();
@@ -71,9 +72,8 @@ function Settlement() {
         const uniqueHexagonCornerCoordinates =
             gameMapLayout!.uniqueHexagonCornerCoordinates;
         
-            possibleCityTargets.forEach((possibleCity) => {
-                possibleCity.setVisible(false);
-            });
+        possibleCityTargets.forEach((x) => x.setVisible(false));
+        possibleRoadTargets.forEach((x) => x.setVisible(false));
 
         if (firstTimeChoosing) {
             for (let i = 0; i < uniqueHexagonCornerCoordinates.length; i++) {

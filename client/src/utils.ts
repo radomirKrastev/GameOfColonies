@@ -5,3 +5,9 @@ export const shuffleArray = (array: unknown[]) => {
     [array[i], array[j]] = [array[j], array[i]];
   }
 };
+
+export const getUserId = () => {
+  const userId = document.cookie.split('userId=')[1];
+  console.log(2, { userId });
+  return userId;
+}

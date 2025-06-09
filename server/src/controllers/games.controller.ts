@@ -1,13 +1,19 @@
 import express from "express";
-import { getGameMapLayout, createGame, getAllGames, joinGame } from "../services";
+import { gameMapService } from "../services";
 import { ICreateGameRequestDto } from "../interfaces";
 
 const router = express.Router();
 
-router.get("/map", (req, res) => {
-  const gameMapLayout = getGameMapLayout();
+router.get("/:gameId/map", async (req, res, next) => {
+  const gameId = req.params.gameId;
 
-  res.json(gameMapLayout);
+  try {
+    const gameMap = await gameMapService.getGameMap(gameId);
+    // console.log({gameMap})
+    res.json(gameMap);
+  } catch (error) {
+    next(error)
+  }
 });
 
 // router.post("/start", async (req, res) => {
@@ -15,33 +21,62 @@ router.get("/map", (req, res) => {
 //   res.json(response)
 // });
 
-router.get("/:gameId", (req, res) => {
-  const games = getAllGames();
-
-  res.json(games);
-});
-
-router.get("/", async (req, res) => {
-  console.log('get all games controller')
-  const games = await getAllGames();
-  console.log({games})
-  res.json(games);
-});
-
-router.post("/", async (req, res) => {
-  const data = req.body as ICreateGameRequestDto;
-  const response = await createGame(data);
-  console.log({response})
-  res.json(response);
-});
-
-router.post("/:gameId/join", async (req, res) => {
-  console.log(req);
-  console.log(req.params);
-  console.log(req.body);
+router.get("/:gameId", async (req, res, next) => {
   const gameId = req.params.gameId;
-  const response = await joinGame(gameId, req.body);
-  res.json(response)
+
+  try {
+    const game = await gameMapService.getGame(gameId);
+    res.json(game);
+  } catch (error) {
+    next(error)
+  }
+});
+
+router.get("/", async (req, res, next) => {
+  try {
+    console.log('get all games controller')
+    const games = await gameMapService.getAllGames();
+    console.log({ games })
+    res.json(games);
+  } catch (error) {
+    next(error)
+  }
+});
+
+router.post("/", async (req, res, next) => {
+  const data = req.body as ICreateGameRequestDto;
+  const userId = req.cookies.userId;
+
+  try {
+    const response = await gameMapService.createGame(data, userId);
+    res.json(response);
+  } catch (error) {
+    next(error)
+  }
+});
+
+router.post("/:gameId/join", async (req, res, next) => {
+  const gameId = req.params.gameId;
+  const userId = req.cookies.userId;
+
+  try {
+    const response = await gameMapService.joinGame(gameId, userId);
+    res.json(response)
+  } catch (error) {
+    next(error)
+  }
+});
+
+router.post("/:gameId/start", async (req, res, next) => {
+  const gameId = req.params.gameId;
+  const userId = req.cookies.userId;
+
+  try {
+    const response = await gameMapService.startGame(gameId, userId);
+    res.json(response)
+  } catch (error) {
+    next(error)
+  }
 });
 
 // 1. User host clicks and creates a game

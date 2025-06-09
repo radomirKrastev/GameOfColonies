@@ -3,11 +3,14 @@ import { useGameContext } from "./Game";
 import { Point } from "../interfaces";
 
 function Road() {
-    const { possibleRoadTargets, gameMapLayout, phaserRef } = useGameContext();
+    const { possibleRoadTargets, gameMapLayout, phaserRef, possibleCityTargets, possibleSettlementTargets } = useGameContext();
     const scene = phaserRef.current!.scene!;
     let firstTimeChoosing = true;
 
     const chooseRoad = () => {
+      possibleCityTargets.forEach((x) => x.setVisible(false));
+      possibleSettlementTargets.forEach((x) => x.setVisible(false));
+
         const roadPositions = gameMapLayout!.roadPositions;
 
         if(firstTimeChoosing) {

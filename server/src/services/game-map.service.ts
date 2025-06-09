@@ -1,4 +1,4 @@
-import { IGameResponseDto, Point, ICreateGameRequestDto, IJoinGameRequestDto } from "../interfaces";
+import { IGameResponseDto, Point, ICreateGameRequestDto, IGameMap } from "../interfaces";
 import {
   generateHexagonalGrid,
   generateUniqueCornerCoordinates,
@@ -17,15 +17,20 @@ import {
   ORIGIN_POSITION_Y,
 } from '../constants';
 import {
-  addGame,
-  updateGame,
-  getGame,
-  getGames,
-} from '../repository'
-import { GameCreatedPublisher } from "../events";
-import { natsWrapper } from "../nats-wrapper";
+  gameMapRepository
+} from '../repository';
+import { createGameAndEmit, emitGameStarted, joinGameAndEmit } from "../socket/services";
+import { usersService } from "./users.service";
+import { GAME_STATUS } from "../enums";
 
-export const getGameMapLayout = () => {
+const getGameMap = async (gameId: string): Promise<IGameMap> => {
+  const game = await gameMapRepository.getGame(gameId);
+  console.log('get Game', JSON.stringify(game, null, 2))
+  const { map } = game
+  return map;
+};
+
+const createGame = async (req: ICreateGameRequestDto, userId: string): Promise<IGameResponseDto> => {
   const hexSize = point(HEX_SIZE, HEX_SIZE);
   const originPosition = point(ORIGIN_POSITION_X, ORIGIN_POSITION_Y);
   const screenLayout = layout(pointyLayout, hexSize, originPosition);
@@ -45,74 +50,111 @@ export const getGameMapLayout = () => {
   const uniqueHexagonCornerCoordinates =
     generateUniqueCornerCoordinates(gridHexesCornersMap);
   const roadPositions = getAllRoadPositions(uniqueHexagonCornerCoordinates);
-  const tiles = getArrangedTiles();
+  const tiles = getArrangedTiles(gridHexesCornersMap);
 
-  return {
-    gridHexesCornersMap,
-    uniqueHexagonCornerCoordinates,
-    roadPositions,
-    tiles,
-  };
-};
-
-export const createGame = async (req: ICreateGameRequestDto): Promise<IGameResponseDto> => {
-  const layout = getGameMapLayout();
+  console.log('createGame', JSON.stringify(tiles, null, 2))
 
   const newGame = {
-    layout,
+    map: {
+      gridHexesCornersMap,
+      uniqueHexagonCornerCoordinates,
+      roadPositions,
+      tiles,
+    },
     isStarted: false,
-    players: [req.playerId],
+    players: [userId],
     name: req.name,
     maxPlayers: req.maxPlayers,
-    creator: req.playerId,
+    creator: userId,
+    status: GAME_STATUS.CREATED,
   }
-  
-  const game = await addGame(newGame);
 
-  //communicate with socket server about game created
-  new GameCreatedPublisher(natsWrapper.client).publish({
-    id: game.id,
-  });
+  const game = await gameMapRepository.addGame(newGame);
 
-  const { id, name, maxPlayers, players } = game;
+  // //communicate with socket server about game created
+  // new GameCreatedPublisher(natsWrapper.client).publish({id: game.id});
+  const socket = await usersService.getUserSocket(userId);
 
-  return { id, name, maxPlayers, playersCount: players.length };
+  if (socket) {
+    createGameAndEmit(socket, game.id);
+  }
+
+  const { id, name, maxPlayers, players, creator } = game;
+
+  return { id, name, maxPlayers, playersCount: players.length, creator };
 };
 
-export const joinGame = async (gameId: string, req: IJoinGameRequestDto): Promise<IGameResponseDto> => {
-  const currentGame = await getGame(gameId);
-  console.log({currentGame}, getAllGames())
-  if(currentGame.players.length - 1 < currentGame.maxPlayers) {
-    currentGame.players.push(req.playerId);
-    const updatedGame = await updateGame(currentGame);
-    const { id, name, maxPlayers, players } = updatedGame;
+const joinGame = async (gameId: string, userId: string): Promise<IGameResponseDto> => {
+  const currentGame = await gameMapRepository.getGame(gameId);
 
-    return { id, name, maxPlayers, playersCount: players.length };
+  console.log({ currentGame }, await getAllGames());
+
+  if (currentGame.players.length - 1 < currentGame.maxPlayers) {
+    currentGame.players.push(userId);
+    const updatedGame = await gameMapRepository.updateGame(currentGame);
+
+    const socket = await usersService.getUserSocket(userId);
+
+    if (socket) {
+      joinGameAndEmit(socket, gameId);
+    }
+
+    const { id, name, maxPlayers, players, creator } = updatedGame;
+
+    return { id, name, maxPlayers, playersCount: players.length, creator };
   } else {
     throw new Error('Game is full');
   }
 };
 
-export const getAllGames = async (): Promise<IGameResponseDto[]> => {
-  const games = await getGames();
+const getAllGames = async (): Promise<IGameResponseDto[]> => {
+  const games = await gameMapRepository.getGames();
   const result: IGameResponseDto[] = [];
 
   games.forEach(game => {
-    const { id, name, maxPlayers, players } = game;
-    result.push({ id, name, maxPlayers, playersCount: players.length });
+    const { id, name, maxPlayers, players, creator } = game;
+    result.push({ id, name, maxPlayers, playersCount: players.length, creator });
   });
 
   return result
 };
 
-// export const getGame = async (gameId: string): Promise<IGameResponseDto> => {
-//   const game = await getGame(gameId);
-//   const result: IGameResponseDto[] = [];
+const getGame = async (gameId: string): Promise<IGameResponseDto> => {
+  const game = await gameMapRepository.getGame(gameId);
 
-//   games.forEach(game => {
-//     const { id, name, maxPlayers, players } = game;
-//     result.push({ id, name, maxPlayers, playersCount: players.length });
-//   });
+  const { id, name, maxPlayers, players, creator } = game;
+  return { id, name, maxPlayers, playersCount: players.length, creator };
+};
 
-//   return result
-// };
+const startGame = async (gameId: string, userId: string): Promise<IGameResponseDto> => {
+  const currentGame = await gameMapRepository.getGame(gameId);
+
+  console.log('START GAME SERVICE', currentGame.creator === userId);
+
+  if (currentGame.creator === userId) {
+    currentGame.status = GAME_STATUS.STARTED;
+    const updatedGame = await gameMapRepository.updateGame(currentGame);
+
+    const socket = await usersService.getUserSocket(userId);
+
+    if (socket) {
+      emitGameStarted(socket, gameId);
+    }
+
+    const { id, name, maxPlayers, players, creator } = updatedGame;
+
+    return { id, name, maxPlayers, playersCount: players.length, creator };
+  } else {
+    throw new Error('Game is full');
+  }
+};
+
+
+export const gameMapService = {
+  getGameMap,
+  createGame,
+  joinGame,
+  getAllGames,
+  getGame,
+  startGame,
+};

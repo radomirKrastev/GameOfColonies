@@ -9,7 +9,7 @@ export const AppContext = createContext<IAppContext>({} as IAppContext);
 
 function App() {
   //TODO create player and playerId 
-  const playerId = Date.now().toString();
+  // const playerId = Date.now().toString();
   const [socket, setSocket] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
   //TODO set type
   const [games, setGames] = useState<{
@@ -20,31 +20,44 @@ function App() {
   }[]>([]);
   
   useEffect(() => {
+    fetchGamesAndSocketConnectHandler();
     console.log(1)
-    const socketInstance = io("https://gameofcolonies.dev", {
-      path: "/socket/",
-      transports: ["websocket", "polling"],
+
+  }, []);
+
+  const fetchGamesAndSocketConnectHandler = async () => {
+    const games = await fetchGames();
+    console.log({ games });
+    setGames(games);
+
+    const socketInstance = io("https://gameofcolonies.com", {
+      path: "/api/socket/",
+      transports: ["websocket", "polling"]
     });
     socketInstance.on("connect", () => {
       console.log("connection success");
     });
 
-    socketInstance.on("games-available", async (arg) => {
+    socketInstance.on("game:all-available", (arg) => {
       console.log(arg)
       console.log(`console.log: ${JSON.stringify(arg, null, 2)}`);
-      const games = await fetchGames();
-      console.log({ games });
-      setGames(games)
+      fetchGamesHandler();
     });
 
     setSocket(socketInstance);
-  }, []);
+  }
+
+  const fetchGamesHandler = async () => {
+    const games = await fetchGames();
+    console.log({ games });
+    setGames(games);
+  }
 
   return (
     <>
       {
         socket &&
-        <AppContext.Provider value={{ socket, games, playerId }}>
+        <AppContext.Provider value={{ socket, games }}>
           <Router />
         </AppContext.Provider>
       }

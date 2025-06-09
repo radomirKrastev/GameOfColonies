@@ -1,3 +1,3 @@
 export interface IJoinGameRequestDto {
-  playerId: string
+  // playerId: string
 }

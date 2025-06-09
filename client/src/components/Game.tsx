@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, createContext, useContext } from "react";
+import { useParams } from "react-router";
 import { IRefPhaserGame, PhaserGame } from "../game/PhaserGame";
 import { GameObjects } from "phaser";
 import { fetchGameMapLayout } from "../services";
@@ -21,13 +22,14 @@ function Game() {
   const possibleCityTargets: GameObjects.Graphics[] = new Array(4);
   const possibleRoadTargets: GameObjects.Graphics[] = new Array(56);
   const roadsBuild: IRoad[] = new Array(60);
+  const params = useParams();
 
   useEffect(() => {
     getGameMapLayout();
   }, []);
 
   const getGameMapLayout = async () => {
-    const response = await fetchGameMapLayout();
+    const response = await fetchGameMapLayout(params.gameId!);
 
     setGameMapLayout(response);
   };

@@ -4,7 +4,7 @@ import { createGame, joinGame } from "../services";
 
 function Home() {
   const navigate = useNavigate();
-  const { socket, games, playerId } = useAppContext();
+  const { socket, games } = useAppContext();
 
   return (
     <>
@@ -24,8 +24,8 @@ function Home() {
             //   }
             // });
 
-            const result = await joinGame(game.id, {playerId});
-            navigate(`/lobby/${game.name}`);
+            const result = await joinGame(game.id);
+            navigate(`/lobby/${result.id}`);
             console.log({ result });
           }}
         >
@@ -39,9 +39,9 @@ function Home() {
             console.log(socket);
 
             //TODO add name input 
-            const result = await createGame({ name: 'gameNameHardcodedAndNotUnique', playerId, maxPlayers: 4 });
+            const result = await createGame({ name: 'gameNameHardcodedAndNotUnique', maxPlayers: 4 });
             console.log({ result });
-            navigate(`/lobby/${result.name}`);
+            navigate(`/lobby/${result.id}`);
 
             // socket.emit("create-room", (roomName?: string) => {
             //   console.log({ roomName })

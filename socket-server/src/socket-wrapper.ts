@@ -10,7 +10,7 @@ import { GameCreatedListener } from "./events";
 
 const io = new Server({
   cors: {
-    origin: ["http://localhost:3000", "https://gameofcolonies.dev/"],
+    origin: ["http://localhost:3000", "https://gameofcolonies.com/"],
   },
 });
 

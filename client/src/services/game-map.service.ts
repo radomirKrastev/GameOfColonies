@@ -2,7 +2,7 @@ import { GameMapLayout, ICreateGameRequest, IGameResponse, IJoinGameRequest } fr
 
 export const fetchGames = async (): Promise<IGameResponse[]> => {
   try {
-    const res = await fetch("https://gameofcolonies.dev/api/games");
+    const res = await fetch("https://gameofcolonies.com/api/games");
     console.log({ res })
     const response = await res.json();
     console.log({ response })
@@ -13,9 +13,9 @@ export const fetchGames = async (): Promise<IGameResponse[]> => {
   }
 };
 
-export const fetchGameMapLayout = async (): Promise<GameMapLayout> => {
+export const fetchGameMapLayout = async (gameId: string): Promise<GameMapLayout> => {
   try {
-    const response = await fetch("https://localhost:3000/game/map");
+    const response = await fetch(`https://gameofcolonies.com/api/games/${gameId}/map`);
     const gameMapLayout = await response.json();
     console.log({ gameMapLayout })
     return gameMapLayout;
@@ -27,7 +27,7 @@ export const fetchGameMapLayout = async (): Promise<GameMapLayout> => {
 
 export const createGame = async (data: ICreateGameRequest): Promise<IGameResponse> => {
   try {
-    const res = await fetch('https://gameofcolonies.dev/api/games', {
+    const res = await fetch('https://gameofcolonies.com/api/games', {
       method: 'POST',
       headers: {
         'Content-type': 'application/json',
@@ -43,15 +43,45 @@ export const createGame = async (data: ICreateGameRequest): Promise<IGameRespons
   }
 };
 
-export const joinGame = async (gameId: string, data: IJoinGameRequest): Promise<IGameResponse> => {
+export const joinGame = async (gameId: string): Promise<IGameResponse> => {
   try {
-    const res = await fetch(`https://gameofcolonies.dev/api/games/${gameId}/join`, {
+    const res = await fetch(`https://gameofcolonies.com/api/games/${gameId}/join`, {
       method: 'POST',
       headers: {
         'Content-type': 'application/json',
-      },
-      body: JSON.stringify(data)
+      }
     });
+    const response = await res.json();
+    console.log({ response })
+    return response;
+  } catch (error) {
+    console.log("Bad request");
+    throw new Error("...");
+  }
+};
+
+export const fetchGame = async (gameId: string): Promise<IGameResponse> => {
+  try {
+    const res = await fetch(`https://gameofcolonies.com/api/games/${gameId}`);
+    console.log({ res })
+    const response = await res.json();
+    console.log({ response })
+    return response;
+  } catch (error) {
+    console.log("Bad request");
+    throw new Error("...");
+  }
+};
+
+export const startGame = async (gameId: string): Promise<IGameResponse> => {
+  try {
+    const res = await fetch(`https://gameofcolonies.com/api/games/${gameId}/start`, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+      }
+    });
+    console.log({ res })
     const response = await res.json();
     console.log({ response })
     return response;

@@ -4,7 +4,7 @@ import { IGameEntity } from '../interfaces/entities';
 const games: IGameEntity[] = [];
 
 //TODO layout type
-export const addGame = (game: Partial<IGameEntity>) => {
+const addGame = (game: Partial<IGameEntity>) => {
   const id = crypto.randomBytes(16).toString("hex");
   const newGame = { id, ...game } as IGameEntity;
   games.push(newGame);
@@ -12,7 +12,7 @@ export const addGame = (game: Partial<IGameEntity>) => {
   return newGame;
 };
 
-export const getGame = (id: string) => {
+const getGame = (id: string) => {
   const index = games.findIndex(x => x.id === id);
 
   if (index > -1) {
@@ -22,7 +22,7 @@ export const getGame = (id: string) => {
   }
 };
 
-export const updateGame = (updatedGame: IGameEntity) => {
+const updateGame = (updatedGame: IGameEntity) => {
   const index = games.findIndex(x => x.id === updatedGame.id);
 
   if (index > -1) {
@@ -38,3 +38,10 @@ export const updateGame = (updatedGame: IGameEntity) => {
 export const getGames = async (): Promise<IGameEntity[]> => {
   return games
 };
+
+export const gameMapRepository = {
+  addGame,
+  updateGame,
+  getGame,
+  getGames,
+}

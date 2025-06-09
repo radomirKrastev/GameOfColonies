@@ -1,9 +1,15 @@
+import { GAME_STATUS } from "../../enums"
+import { IGameMap } from "../game-map.interface"
+
 export interface IGameEntity {
   id: string,
   //TODO layout interface
-  layout: any,
   isStarted: boolean,
   players: string[]
   name: string,
-  maxPlayers: number
+  maxPlayers: number,
+  creator: string,
+  status: GAME_STATUS,
+  //TODO add type
+  map: IGameMap
 }
