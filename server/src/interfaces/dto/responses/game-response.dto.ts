@@ -4,4 +4,5 @@ export interface IGameResponseDto {
   maxPlayers: number;
   playersCount: number;
   creator: string;
+  playerTurn?: string | null;
 }

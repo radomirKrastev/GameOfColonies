@@ -10,3 +10,4 @@ export * from './context';
 export * from './create-game-request.interface';
 export * from './game-response.interface';
 export * from './join-game-request.interface';
+export * from './dices-interface.dto';

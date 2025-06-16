@@ -12,4 +12,7 @@ export interface IGameEntity {
   status: GAME_STATUS,
   //TODO add type
   map: IGameMap
+  playerTurn: string | null,
+  currentRoll: { diceOne: number, diceTwo: number } | null,
 }
+  

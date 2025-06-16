@@ -1,5 +1,5 @@
 import express from "express";
-import { gameMapService } from "../services";
+import { gameActionsService, gameMapService } from "../services";
 import { ICreateGameRequestDto } from "../interfaces";
 
 const router = express.Router();
@@ -73,6 +73,29 @@ router.post("/:gameId/start", async (req, res, next) => {
 
   try {
     const response = await gameMapService.startGame(gameId, userId);
+    res.json(response)
+  } catch (error) {
+    next(error)
+  }
+});
+
+router.post("/:gameId/dices/roll", async (req, res, next) => {
+  const gameId = req.params.gameId;
+  const userId = req.cookies.userId;
+
+  try {
+    const response = await gameActionsService.rollDices(gameId, userId);
+    res.json(response)
+  } catch (error) {
+    next(error)
+  }
+});
+
+router.get("/:gameId/dices", async (req, res, next) => {
+  const gameId = req.params.gameId;
+
+  try {
+    const response = await gameActionsService.getDices(gameId);
     res.json(response)
   } catch (error) {
     next(error)

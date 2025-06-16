@@ -9,6 +9,7 @@ import {
   point,
   layout,
   pointyLayout,
+  getRandomndInt,
 } from "../utils/index";
 import {
   BOARD_RADIUS_SIZE,
@@ -133,6 +134,32 @@ const startGame = async (gameId: string, userId: string): Promise<IGameResponseD
 
   if (currentGame.creator === userId) {
     currentGame.status = GAME_STATUS.STARTED;
+    currentGame.playerTurn = currentGame.players[getRandomndInt(0, currentGame.players.length)];
+
+    const updatedGame = await gameMapRepository.updateGame(currentGame);
+
+    const socket = await usersService.getUserSocket(userId);
+
+    if (socket) {
+      emitGameStarted(socket, gameId);
+    }
+
+    const { id, name, maxPlayers, players, creator, playerTurn } = updatedGame;
+
+    return { id, name, maxPlayers, playersCount: players.length, creator, playerTurn };
+  } else {
+    throw new Error('Game is full');
+  }
+};
+
+const rollDices = async (gameId: string, userId: string): Promise<IGameResponseDto> => {
+  const currentGame = await gameMapRepository.getGame(gameId);
+
+  console.log('START GAME SERVICE', currentGame.creator === userId);
+
+  if (currentGame.playerTurn === userId) {
+    currentGame.status = GAME_STATUS.STARTED;
+    
     const updatedGame = await gameMapRepository.updateGame(currentGame);
 
     const socket = await usersService.getUserSocket(userId);
@@ -145,7 +172,7 @@ const startGame = async (gameId: string, userId: string): Promise<IGameResponseD
 
     return { id, name, maxPlayers, playersCount: players.length, creator };
   } else {
-    throw new Error('Game is full');
+    throw new Error('It is not your turn');
   }
 };
 

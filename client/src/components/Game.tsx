@@ -8,6 +8,7 @@ import { IGameContext } from "../interfaces/context";
 import Settlement from "./Settlement";
 import Road from "./Road";
 import City from "./City";
+import Dices from "./Dices";
 
 export const GameContext = createContext<IGameContext>({} as IGameContext);
 
@@ -59,6 +60,8 @@ function Game() {
               <Road />
 
               <City />
+
+              <Dices />
             </GameContext.Provider>
           )}
         </>
