@@ -1,6 +1,7 @@
 import { GameObjects } from "phaser";
 import { useGameContext } from "./Game";
 import { Point } from "../interfaces";
+import { getStyleColor } from "../utils";
 
 function Settlement() {
     const {
@@ -9,6 +10,7 @@ function Settlement() {
         possibleRoadTargets,
         gameMapLayout,
         phaserRef,
+        player
     } = useGameContext();
     const scene = phaserRef.current!.scene!;
     const currentSettlements: {
@@ -22,8 +24,8 @@ function Settlement() {
         const graphics = new GameObjects.Graphics(scene);
 
         graphics.setDefaultStyles({
-            lineStyle: { width: 2, color: 0xffc0cb, alpha: 1 },
-            fillStyle: { color: 0xffc0cb, alpha: 1 },
+            lineStyle: { width: 2, color: getStyleColor(player?.color), alpha: 1 },
+            fillStyle: { color: getStyleColor(player?.color), alpha: 1 },
         });
         graphics.setDepth(2);
 
@@ -45,8 +47,8 @@ function Settlement() {
         const graphics = new GameObjects.Graphics(scene);
 
         graphics.setDefaultStyles({
-            lineStyle: { width: 2, color: 0xffc0cb, alpha: 1 },
-            fillStyle: { color: 0xffc0cb, alpha: 1 },
+            lineStyle: { width: 2, color: getStyleColor(player?.color), alpha: 1 },
+            fillStyle: { color: getStyleColor(player?.color), alpha: 1 },
         });
         graphics.setDepth(2);
 
@@ -152,19 +154,19 @@ function Settlement() {
 
                 // Add graphics to the scene
                 scene.add.existing(graphics);
-                scene.add.text(
-                    uniqueHexagonCornerCoordinates[i].x,
-                    uniqueHexagonCornerCoordinates[i].y,
-                    `${i}`,
-                    {
-                        fontFamily: "Arial Black",
-                        fontSize: 30,
-                        color: "#ffffff",
-                        stroke: "#000000",
-                        strokeThickness: 8,
-                        align: "center",
-                    }
-                );
+                // scene.add.text(
+                //     uniqueHexagonCornerCoordinates[i].x,
+                //     uniqueHexagonCornerCoordinates[i].y,
+                //     `${i}`,
+                //     {
+                //         fontFamily: "Arial Black",
+                //         fontSize: 30,
+                //         color: "#ffffff",
+                //         stroke: "#000000",
+                //         strokeThickness: 8,
+                //         align: "center",
+                //     }
+                // );
                 firstTimeChoosing = false;
             }
         } else {
@@ -173,7 +175,7 @@ function Settlement() {
     };
 
     return (
-        <button className="button" onClick={chooseSettlement}>
+        <button className={`button ${player?.color}`} onClick={chooseSettlement}>
             Choose Settlement
         </button>
     );

@@ -1,9 +1,10 @@
 import { GameObjects } from "phaser";
 import { useGameContext } from "./Game";
 import { Point } from "../interfaces";
+import { getStyleColor } from "../utils";
 
 function Road() {
-    const { possibleRoadTargets, gameMapLayout, phaserRef, possibleCityTargets, possibleSettlementTargets } = useGameContext();
+    const { possibleRoadTargets, gameMapLayout, phaserRef, possibleCityTargets, possibleSettlementTargets, player } = useGameContext();
     const scene = phaserRef.current!.scene!;
     let firstTimeChoosing = true;
 
@@ -76,8 +77,8 @@ function Road() {
         const graphics = new GameObjects.Graphics(scene);
 
         graphics.setDefaultStyles({
-            lineStyle: { width: 5, color: 0xff0000, alpha: 1 },
-            fillStyle: { color: 0xffc0cb, alpha: 1 },
+            lineStyle: { width: 5, color: getStyleColor(player?.color), alpha: 1 },
+            fillStyle: { color: getStyleColor(player?.color), alpha: 1 },
         });
 
         const line = new Phaser.Geom.Line(
@@ -94,7 +95,7 @@ function Road() {
     };
 
     return (
-        <button className="button" onClick={chooseRoad}>
+        <button className={`button ${player?.color}`} onClick={chooseRoad}>
             Choose Road
         </button>
     );

@@ -1,4 +1,4 @@
-import { GameMapLayout, ICreateGameRequest, IDicesResponseDto, IGameResponse } from "../interfaces";
+import { GameMapLayout, ICreateGameRequest, IDicesResponseDto, IGameResponse, IPlayer } from "../interfaces";
 
 export const fetchGames = async (): Promise<IGameResponse[]> => {
   try {
@@ -114,6 +114,24 @@ export const rollDices = async (gameId: string): Promise<IDicesResponseDto> => {
 export const fetchDices = async (gameId: string): Promise<IDicesResponseDto> => {
   try {
     const res = await fetch(`https://gameofcolonies.com/api/games/${gameId}/dices`, {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+      }
+    });
+    console.log({ res })
+    const response = await res.json();
+    console.log({ response })
+    return response;
+  } catch (error) {
+    console.log("Bad request");
+    throw new Error("...");
+  }
+};
+
+export const fetchPlayer = async (gameId: string, userId: string): Promise<IPlayer> => {
+  try {
+    const res = await fetch(`https://gameofcolonies.com/api/games/${gameId}/players/${userId}`, {
       method: 'GET',
       headers: {
         'Content-type': 'application/json',

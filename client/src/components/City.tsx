@@ -1,7 +1,7 @@
 import { useGameContext } from "./Game";
 
 function City() {
-  const { possibleCityTargets, possibleSettlementTargets, possibleRoadTargets } = useGameContext();
+  const { possibleCityTargets, possibleSettlementTargets, possibleRoadTargets, player } = useGameContext();
 
   const chooseCity = () => {
       possibleSettlementTargets.forEach((x) => x.setVisible(false));
@@ -10,7 +10,7 @@ function City() {
   };
 
   return (
-    <button className="button" onClick={chooseCity}>
+    <button className={`button ${player?.color}`} onClick={chooseCity}>
       Choose City
     </button>
   );

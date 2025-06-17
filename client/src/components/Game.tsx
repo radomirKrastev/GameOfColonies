@@ -2,13 +2,14 @@ import { useRef, useEffect, useState, createContext, useContext } from "react";
 import { useParams } from "react-router";
 import { IRefPhaserGame, PhaserGame } from "../game/PhaserGame";
 import { GameObjects } from "phaser";
-import { fetchGameMapLayout } from "../services";
-import { GameMapLayout, IRoad } from "../interfaces";
+import { fetchGameMapLayout, fetchPlayer } from "../services";
+import { GameMapLayout, IPlayer, IRoad } from "../interfaces";
 import { IGameContext } from "../interfaces/context";
 import Settlement from "./Settlement";
 import Road from "./Road";
 import City from "./City";
 import Dices from "./Dices";
+import { getUserId } from "../utils";
 
 export const GameContext = createContext<IGameContext>({} as IGameContext);
 
@@ -16,6 +17,9 @@ function Game() {
   //  References to the PhaserGame component (game and scene are exposed)
   const phaserRef = useRef<IRefPhaserGame | null>(null);
   const [gameMapLayout, setGameMapLayout] = useState<GameMapLayout | null>(
+    null
+  );
+  const [player, setPlayer] = useState<IPlayer | null>(
     null
   );
   const [isSceneReady, setIsSceneReady] = useState<boolean>(false);
@@ -30,9 +34,11 @@ function Game() {
   }, []);
 
   const getGameMapLayout = async () => {
-    const response = await fetchGameMapLayout(params.gameId!);
+    const mapLayout = await fetchGameMapLayout(params.gameId!);
+    const playerData = await fetchPlayer(params.gameId!, getUserId());
 
-    setGameMapLayout(response);
+    setGameMapLayout(mapLayout);
+    setPlayer(playerData);
   };
 
   return (
@@ -53,15 +59,18 @@ function Game() {
                 possibleRoadTargets,
                 roadsBuild,
                 phaserRef,
+                player
               }}
             >
-              <Settlement />
+              <div style={{ backgroundColor: "#FFFF00" }}>
+                <Settlement />
 
-              <Road />
+                <Road />
 
-              <City />
+                <City />
 
-              <Dices />
+                <Dices />
+              </div>
             </GameContext.Provider>
           )}
         </>

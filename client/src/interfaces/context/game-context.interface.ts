@@ -2,6 +2,7 @@ import { GameObjects } from "phaser";
 import { GameMapLayout } from "../game-map-layout.interface";
 import { IRoad } from "../road.interface";
 import { IRefPhaserGame } from "../../game/PhaserGame";
+import { IPlayer } from "../player.interface";
 
 export interface IGameContext {
     gameMapLayout: GameMapLayout;
@@ -10,5 +11,6 @@ export interface IGameContext {
     possibleRoadTargets: GameObjects.Graphics[];
     roadsBuild: IRoad[];
     phaserRef: React.MutableRefObject<IRefPhaserGame | null>;
+    player: IPlayer | null;
 }
 

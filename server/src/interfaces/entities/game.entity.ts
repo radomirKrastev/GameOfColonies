@@ -1,11 +1,12 @@
 import { GAME_STATUS } from "../../enums"
 import { IGameMap } from "../game-map.interface"
+import { Player } from "../player.interface"
 
 export interface IGameEntity {
   id: string,
   //TODO layout interface
   isStarted: boolean,
-  players: string[]
+  players: Player[]
   name: string,
   maxPlayers: number,
   creator: string,

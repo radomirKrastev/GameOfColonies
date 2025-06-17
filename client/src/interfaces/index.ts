@@ -10,4 +10,5 @@ export * from './context';
 export * from './create-game-request.interface';
 export * from './game-response.interface';
 export * from './join-game-request.interface';
-export * from './dices-interface.dto';
+export * from './dices-response.interface';
+export * from './player.interface';

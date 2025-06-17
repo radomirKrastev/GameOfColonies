@@ -8,5 +8,5 @@ export const usersService = {
   },
   getUserSocket: async (userId: string) => {
     return await usersRepository.getUserSocket(userId);
-  }
+  },
 };

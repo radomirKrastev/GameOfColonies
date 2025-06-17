@@ -1,3 +1,5 @@
+import { PLAYER_COLOR } from "../enums";
+
 export const shuffleArray = <T>(array: T[]) => {
   // console.log(111111, JSON.stringify(array, null, 2))
   for (let i = array.length - 1; i > 0; i--) {
@@ -10,4 +12,19 @@ export const shuffleArray = <T>(array: T[]) => {
 
 export const getRandomndInt = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min)) + min;
+}
+
+export const getPlayerColor = (index: number): PLAYER_COLOR => {
+  switch (index) {
+    case 0:
+      return PLAYER_COLOR.BLACK;
+    case 1:
+      return PLAYER_COLOR.RED;
+    case 2:
+      return PLAYER_COLOR.WHITE;
+    case 3:
+      return PLAYER_COLOR.BLUE;
+    default:
+      return PLAYER_COLOR.BLACK; // Default color if index is out of range
+  }
 }
