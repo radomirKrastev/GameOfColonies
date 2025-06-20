@@ -8,10 +8,12 @@ import { rollDices, fetchDices } from "../services/game-map.service.ts";
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
 import { useAppContext } from "./App.tsx";
+import { useGameContext } from "./Game.tsx";
 
 function Dices() {
   const params = useParams();
   const [dices, setDices] = useState<{ diceOne: number, diceTwo: number }>({ diceOne: 4, diceTwo: 4 });
+  const { isPlayerTurn, turn } = useGameContext();
   const { socket } = useAppContext();
 
   useEffect(() => {
@@ -40,9 +42,8 @@ function Dices() {
   }
 
   return (
-    <button onClick={rollDicesHandler}>
+    <button onClick={rollDicesHandler} className={`dices-button ${isPlayerTurn && !turn?.isRolled ? "active" : ""}`}>
       <div>
-
         <img src={diceMap[dices.diceOne]} width={60} height={60} />
         <img src={diceMap[dices.diceTwo]} width={60} height={60} />
       </div>

@@ -12,3 +12,4 @@ export * from './game-response.interface';
 export * from './join-game-request.interface';
 export * from './dices-response.interface';
 export * from './player.interface';
+export * from './turn.interface'

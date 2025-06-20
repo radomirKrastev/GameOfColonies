@@ -7,3 +7,4 @@ export * from './road.interface';
 export * from './tile.interface';
 export * from './game-map.interface';
 export * from './player.interface';
+export * from './game-turn.interface';

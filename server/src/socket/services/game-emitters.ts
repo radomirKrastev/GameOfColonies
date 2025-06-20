@@ -48,3 +48,10 @@ export const emitDicesRolled = (socket: Socket, room: string) => {
   //TODO add check if socket is in this room
   io.to(room).emit('dices:rolled');  
 };
+
+// Possible for extracting in a separate file
+export const emitTurnFinished = (socket: Socket, room: string) => {
+  console.log('turn finished', {room});
+  //TODO add check if socket is in this room
+  io.to(room).emit('turn:finished');  
+};

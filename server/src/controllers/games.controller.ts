@@ -114,6 +114,29 @@ router.get("/:gameId/players/:id", async (req, res, next) => {
   }
 });
 
+router.get("/:gameId/turn", async (req, res, next) => {
+  const gameId = req.params.gameId;
+
+  try {
+    const response = await gameMapService.getTurn(gameId);
+    res.json(response)
+  } catch (error) {
+    next(error)
+  }
+});
+
+router.post("/:gameId/turn", async (req, res, next) => {
+  const gameId = req.params.gameId;
+  const userId = req.cookies.userId;
+
+  try {
+    const response = await gameMapService.finishTurn(gameId, userId);
+    res.json(response)
+  } catch (error) {
+    next(error)
+  }
+});
+
 // 1. User host clicks and creates a game
 // 2. User player clicks and joins a game   If game is not started yet there is lobby screen / If started player cannot join
 // 3. User host starts game - everybody makes request which gets the game map and game is visualised

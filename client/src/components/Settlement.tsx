@@ -10,7 +10,8 @@ function Settlement() {
         possibleRoadTargets,
         gameMapLayout,
         phaserRef,
-        player
+        player,
+        isPlayerTurn
     } = useGameContext();
     const scene = phaserRef.current!.scene!;
     const currentSettlements: {
@@ -175,7 +176,7 @@ function Settlement() {
     };
 
     return (
-        <button className={`button ${player?.color}`} onClick={chooseSettlement}>
+        <button disabled={!isPlayerTurn} className={`button ${player?.color}`} onClick={chooseSettlement}>
             Choose Settlement
         </button>
     );

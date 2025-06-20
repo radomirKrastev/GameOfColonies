@@ -41,7 +41,6 @@ export class GameMapScene extends Scene implements GameMap {
     this.load.setPath("/assets");
 
     this.load.image("background", "bg.png");
-    this.load.image("three", "three.png");
 
     this.load.image("empty", TILES.EMPTY);
     this.load.image("sheep", TILES.SHEEP);

@@ -1,4 +1,4 @@
-import { IGameResponseDto, Point, ICreateGameRequestDto, IGameMap, IPlayer } from "../interfaces";
+import { IGameResponseDto, Point, ICreateGameRequestDto, IGameMap, IPlayer, IPlayerInfoResponseDto, IGameTurnResponseDto } from "../interfaces";
 import {
   generateHexagonalGrid,
   generateUniqueCornerCoordinates,
@@ -21,7 +21,7 @@ import {
 import {
   gameMapRepository
 } from '../repository';
-import { createGameAndEmit, emitGameStarted, joinGameAndEmit } from "../socket/services";
+import { createGameAndEmit, emitTurnFinished, emitGameStarted, joinGameAndEmit } from "../socket/services";
 import { usersService } from "./users.service";
 import { GAME_STATUS } from "../enums";
 
@@ -92,7 +92,7 @@ const joinGame = async (gameId: string, userId: string): Promise<IGameResponseDt
   console.log({ currentGame }, await getAllGames());
 
   if (currentGame.players.length - 1 < currentGame.maxPlayers) {
-    currentGame.players.push({userId, color: getPlayerColor(currentGame.players.length)});
+    currentGame.players.push({ userId, color: getPlayerColor(currentGame.players.length) });
     const updatedGame = await gameMapRepository.updateGame(currentGame);
 
     const socket = await usersService.getUserSocket(userId);
@@ -135,7 +135,14 @@ const startGame = async (gameId: string, userId: string): Promise<IGameResponseD
 
   if (currentGame.creator === userId) {
     currentGame.status = GAME_STATUS.STARTED;
-    currentGame.playerTurn = currentGame.players[getRandomndInt(0, currentGame.players.length)].userId;
+    const randomPlayerIndex = getRandomndInt(0, currentGame.players.length);
+    const nextPlayerIndex = (randomPlayerIndex + 1) % currentGame.players.length;
+    currentGame.gameTurns = [{
+      playerId: currentGame.players[randomPlayerIndex].userId,
+      nextPlayerIndex,
+      roll: null,
+      isTurnEnded: false,
+    }];
 
     const updatedGame = await gameMapRepository.updateGame(currentGame);
 
@@ -145,24 +152,79 @@ const startGame = async (gameId: string, userId: string): Promise<IGameResponseD
       emitGameStarted(socket, gameId);
     }
 
-    const { id, name, maxPlayers, players, creator, playerTurn } = updatedGame;
+    const { id, name, maxPlayers, players, creator } = updatedGame;
 
-    return { id, name, maxPlayers, playersCount: players.length, creator, playerTurn };
+    return { id, name, maxPlayers, playersCount: players.length, creator };
   } else {
     throw new Error('Game is full');
   }
 };
 
-const getPlayer = async (gameId: string, userId: string): Promise<IPlayer> => {
+const getPlayer = async (gameId: string, userId: string): Promise<IPlayerInfoResponseDto> => {
   const currentGame = await gameMapRepository.getGame(gameId);
+
   const player: IPlayer | undefined = currentGame.players.find(player => player.userId === userId);
 
   if (!player) {
     throw new Error('Player not found in the game');
   }
+
   console.log('getPlayer', player);
 
-  return player;
+  return { userId: player.userId, color: player.color };
+};
+
+const getTurn = async (gameId: string): Promise<IGameTurnResponseDto> => {
+  const currentGame = await gameMapRepository.getGame(gameId);
+
+  const res = currentGame.gameTurns[currentGame.gameTurns.length - 1];
+
+  if (!res) {
+    throw new Error('Turn not found');
+  }
+
+  console.log('getTurn', res);
+
+  return { playerId: res.playerId, isTurnEnded: res.isTurnEnded, isRolled: res.roll !== null };
+};
+
+const finishTurn = async (gameId: string, userId: string): Promise<IGameTurnResponseDto> => {
+  const currentGame = await gameMapRepository.getGame(gameId);
+
+  const currentTurn = currentGame.gameTurns[currentGame.gameTurns.length - 1];
+
+  if (!currentTurn) {
+    throw new Error('Turn not found');
+  }
+
+  if (currentTurn.playerId !== userId) {
+    throw new Error('It is not your turn');
+  }
+
+  currentTurn.isTurnEnded = true;
+  currentGame.gameTurns[currentGame.gameTurns.length - 1] = currentTurn;
+
+  const newTurnPlayerIndex = currentTurn.nextPlayerIndex;
+  const nextPlayerIndex = (newTurnPlayerIndex + 1) % currentGame.players.length;
+  const newTurn = {
+    playerId: currentGame.players[newTurnPlayerIndex].userId,
+    nextPlayerIndex,
+    roll: null,
+    isTurnEnded: false,
+  };
+  currentGame.gameTurns.push(newTurn);
+
+  const updatedGame = await gameMapRepository.updateGame(currentGame);
+
+  const socket = await usersService.getUserSocket(userId);
+
+  if (socket) {
+    emitTurnFinished(socket, gameId);
+  }
+
+  const res = updatedGame.gameTurns[updatedGame.gameTurns.length - 1];
+
+  return { playerId: res.playerId, isTurnEnded: res.isTurnEnded, isRolled: res.roll !== null };
 };
 
 export const gameMapService = {
@@ -173,4 +235,6 @@ export const gameMapService = {
   getGame,
   startGame,
   getPlayer,
+  getTurn,
+  finishTurn
 };

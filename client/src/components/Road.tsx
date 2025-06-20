@@ -4,7 +4,7 @@ import { Point } from "../interfaces";
 import { getStyleColor } from "../utils";
 
 function Road() {
-    const { possibleRoadTargets, gameMapLayout, phaserRef, possibleCityTargets, possibleSettlementTargets, player } = useGameContext();
+    const { possibleRoadTargets, gameMapLayout, phaserRef, possibleCityTargets, possibleSettlementTargets, player, isPlayerTurn } = useGameContext();
     const scene = phaserRef.current!.scene!;
     let firstTimeChoosing = true;
 
@@ -95,7 +95,7 @@ function Road() {
     };
 
     return (
-        <button className={`button ${player?.color}`} onClick={chooseRoad}>
+        <button disabled={!isPlayerTurn} className={`button ${player?.color}`} onClick={chooseRoad}>
             Choose Road
         </button>
     );
