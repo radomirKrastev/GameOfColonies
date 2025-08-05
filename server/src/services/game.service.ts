@@ -1,98 +1,26 @@
-import { IGameResponseDto, Point, ICreateGameRequestDto, IGameMap, IPlayer, IPlayerInfoResponseDto, IGameTurnResponseDto } from "../interfaces";
+import { IGameResponseDto, IGameMap, IPlayer, IPlayerInfoResponseDto, IGameTurnResponseDto } from "../interfaces";
 import {
-  generateHexagonalGrid,
-  generateUniqueCornerCoordinates,
-  getAllRoadPositions,
-  hex,
-  polygonCorners,
-  getArrangedTiles,
-  point,
-  layout,
-  pointyLayout,
   getRandomndInt,
   getPlayerColor,
 } from "../utils/index";
 import {
-  BOARD_RADIUS_SIZE,
-  HEX_SIZE,
-  ORIGIN_POSITION_X,
-  ORIGIN_POSITION_Y,
-} from '../constants';
-import {
   gameMapRepository
 } from '../repository';
-import { createGameAndEmit, emitTurnFinished, emitGameStarted, joinGameAndEmit } from "../socket/services";
+import { emitTurnFinished, emitGameStarted, joinGameAndEmit } from "../socket/services";
 import { usersService } from "./users.service";
-import { GAME_STATUS } from "../enums";
+import { GAME_STATUS, INITIAL_PLACEMENT } from "../enums";
 
 const getGameMap = async (gameId: string): Promise<IGameMap> => {
   const game = await gameMapRepository.getGame(gameId);
-  console.log('get Game', JSON.stringify(game, null, 2))
   const { map } = game
   return map;
-};
-
-const createGame = async (req: ICreateGameRequestDto, userId: string): Promise<IGameResponseDto> => {
-  const hexSize = point(HEX_SIZE, HEX_SIZE);
-  const originPosition = point(ORIGIN_POSITION_X, ORIGIN_POSITION_Y);
-  const screenLayout = layout(pointyLayout, hexSize, originPosition);
-
-  const gridHexesCoordinatesMap = generateHexagonalGrid(BOARD_RADIUS_SIZE);
-
-  const gridHexesCornersMap: Point[][] = [];
-  gridHexesCoordinatesMap.slice().forEach((hexCoordinates) => {
-    gridHexesCornersMap.push(
-      polygonCorners(
-        screenLayout,
-        hex(hexCoordinates.q, hexCoordinates.r, hexCoordinates.s)
-      )
-    );
-  });
-
-  const uniqueHexagonCornerCoordinates =
-    generateUniqueCornerCoordinates(gridHexesCornersMap);
-  const roadPositions = getAllRoadPositions(uniqueHexagonCornerCoordinates);
-  const tiles = getArrangedTiles(gridHexesCornersMap);
-
-  console.log('createGame', JSON.stringify(tiles, null, 2))
-
-  const newGame = {
-    map: {
-      gridHexesCornersMap,
-      uniqueHexagonCornerCoordinates,
-      roadPositions,
-      tiles,
-    },
-    isStarted: false,
-    players: [{ userId, color: getPlayerColor(0) }],
-    name: req.name,
-    maxPlayers: req.maxPlayers,
-    creator: userId,
-    status: GAME_STATUS.CREATED,
-  }
-
-  const game = await gameMapRepository.addGame(newGame);
-
-  // //communicate with socket server about game created
-  // new GameCreatedPublisher(natsWrapper.client).publish({id: game.id});
-  const socket = await usersService.getUserSocket(userId);
-
-  if (socket) {
-    createGameAndEmit(socket, game.id);
-  }
-
-  const { id, name, maxPlayers, players, creator } = game;
-
-  return { id, name, maxPlayers, playersCount: players.length, creator };
 };
 
 const joinGame = async (gameId: string, userId: string): Promise<IGameResponseDto> => {
   const currentGame = await gameMapRepository.getGame(gameId);
 
-  console.log({ currentGame }, await getAllGames());
-
   if (currentGame.players.length - 1 < currentGame.maxPlayers) {
-    currentGame.players.push({ userId, color: getPlayerColor(currentGame.players.length) });
+    currentGame.players.push({ userId, color: getPlayerColor(currentGame.players.length), points: 0, hiddenPoints: 0 });
     const updatedGame = await gameMapRepository.updateGame(currentGame);
 
     const socket = await usersService.getUserSocket(userId);
@@ -109,18 +37,6 @@ const joinGame = async (gameId: string, userId: string): Promise<IGameResponseDt
   }
 };
 
-const getAllGames = async (): Promise<IGameResponseDto[]> => {
-  const games = await gameMapRepository.getGames();
-  const result: IGameResponseDto[] = [];
-
-  games.forEach(game => {
-    const { id, name, maxPlayers, players, creator } = game;
-    result.push({ id, name, maxPlayers, playersCount: players.length, creator });
-  });
-
-  return result
-};
-
 const getGame = async (gameId: string): Promise<IGameResponseDto> => {
   const game = await gameMapRepository.getGame(gameId);
 
@@ -131,8 +47,6 @@ const getGame = async (gameId: string): Promise<IGameResponseDto> => {
 const startGame = async (gameId: string, userId: string): Promise<IGameResponseDto> => {
   const currentGame = await gameMapRepository.getGame(gameId);
 
-  console.log('START GAME SERVICE', currentGame.creator === userId);
-
   if (currentGame.creator === userId) {
     currentGame.status = GAME_STATUS.STARTED;
     const randomPlayerIndex = getRandomndInt(0, currentGame.players.length);
@@ -142,7 +56,20 @@ const startGame = async (gameId: string, userId: string): Promise<IGameResponseD
       nextPlayerIndex,
       roll: null,
       isTurnEnded: false,
+      initialPlacement: INITIAL_PLACEMENT.FIRST,
     }];
+
+    const settlements = currentGame.map.uniqueHexagonCornerCoordinates.map(coordinates => ({
+      coordinates,
+      availableFor: [],
+    })
+    );
+
+    currentGame.availableSpots = {
+      settlements,
+      roads: [],
+      cities: [],
+    };
 
     const updatedGame = await gameMapRepository.updateGame(currentGame);
 
@@ -169,8 +96,6 @@ const getPlayer = async (gameId: string, userId: string): Promise<IPlayerInfoRes
     throw new Error('Player not found in the game');
   }
 
-  console.log('getPlayer', player);
-
   return { userId: player.userId, color: player.color };
 };
 
@@ -183,9 +108,12 @@ const getTurn = async (gameId: string): Promise<IGameTurnResponseDto> => {
     throw new Error('Turn not found');
   }
 
-  console.log('getTurn', res);
-
-  return { playerId: res.playerId, isTurnEnded: res.isTurnEnded, isRolled: res.roll !== null };
+  return {
+    playerId: res.playerId,
+    isTurnEnded: res.isTurnEnded,
+    isRolled: res.roll !== null,
+    initialPlacement: currentGame.gameTurns[currentGame.gameTurns.length - 1].initialPlacement
+  };
 };
 
 const finishTurn = async (gameId: string, userId: string): Promise<IGameTurnResponseDto> => {
@@ -205,12 +133,31 @@ const finishTurn = async (gameId: string, userId: string): Promise<IGameTurnResp
   currentGame.gameTurns[currentGame.gameTurns.length - 1] = currentTurn;
 
   const newTurnPlayerIndex = currentTurn.nextPlayerIndex;
-  const nextPlayerIndex = (newTurnPlayerIndex + 1) % currentGame.players.length;
+
+  let nextPlayerIndex: number;
+
+  if (currentGame.gameTurns.length === currentGame.players.length) {
+    nextPlayerIndex = newTurnPlayerIndex;
+  } else if (currentGame.gameTurns.length > currentGame.players.length && currentGame.gameTurns.length < currentGame.players.length * 2) {
+    nextPlayerIndex = newTurnPlayerIndex - 1;
+  } else {
+    nextPlayerIndex = (newTurnPlayerIndex + 1) % currentGame.players.length;
+  }
+
+  let initialPlacement = INITIAL_PLACEMENT.COMPLETED;
+
+  if (currentGame.gameTurns.length < currentGame.players.length) {
+    initialPlacement = INITIAL_PLACEMENT.FIRST;
+  } else if (currentGame.gameTurns.length < currentGame.players.length * 2) {
+    initialPlacement = INITIAL_PLACEMENT.SECOND;
+  }
+
   const newTurn = {
     playerId: currentGame.players[newTurnPlayerIndex].userId,
     nextPlayerIndex,
     roll: null,
     isTurnEnded: false,
+    initialPlacement,
   };
   currentGame.gameTurns.push(newTurn);
 
@@ -224,17 +171,20 @@ const finishTurn = async (gameId: string, userId: string): Promise<IGameTurnResp
 
   const res = updatedGame.gameTurns[updatedGame.gameTurns.length - 1];
 
-  return { playerId: res.playerId, isTurnEnded: res.isTurnEnded, isRolled: res.roll !== null };
+  return {
+    playerId: res.playerId,
+    isTurnEnded: res.isTurnEnded,
+    isRolled: res.roll !== null,
+    initialPlacement: updatedGame.gameTurns[updatedGame.gameTurns.length - 1].initialPlacement
+  };
 };
 
-export const gameMapService = {
+export const gameService = {
   getGameMap,
-  createGame,
   joinGame,
-  getAllGames,
   getGame,
   startGame,
   getPlayer,
   getTurn,
-  finishTurn
+  finishTurn,
 };

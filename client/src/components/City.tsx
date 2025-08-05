@@ -1,12 +1,11 @@
-import { useGameContext } from "./Game";
+import { useGameContext } from "./Game/Game";
 
 function City() {
-  const { possibleCityTargets, possibleSettlementTargets, possibleRoadTargets, player, isPlayerTurn } = useGameContext();
+  const { player, isPlayerTurn, availableSpots } = useGameContext();
 
   const chooseCity = () => {
-      possibleSettlementTargets.forEach((x) => x.setVisible(false));
-      possibleCityTargets.forEach((x) => x.setVisible(true));
-      possibleRoadTargets.forEach((x) => x.setVisible(false));
+    const availableCities = availableSpots?.cities || [];
+    availableCities.forEach((x) => x.graphics?.setVisible(true));
   };
 
   return (

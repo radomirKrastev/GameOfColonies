@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router";
-import Game from "../components/Game.tsx";
+import Game from "./Game/Game.tsx";
 import Home from "../components/Home.tsx";
 import Lobby from "../components/Lobby.tsx";
 

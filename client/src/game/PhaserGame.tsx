@@ -23,7 +23,6 @@ const setGameMapLayout = (
         "uniqueHexagonCornerCoordinates" in scene &&
         "gridHexesCornersMap" in scene
     ) {
-        console.log(1, gameMapLayout.gridHexesCornersMap);
         scene.gridHexesCornersMap = gameMapLayout.gridHexesCornersMap;
         scene.tiles = gameMapLayout.tiles;
         scene.uniqueHexagonCornerCoordinates =
@@ -62,7 +61,6 @@ export const PhaserGame = forwardRef<IRefPhaserGame, IProps>(
             EventBus.on(
                 "current-scene-ready",
                 (scene_instance: Phaser.Scene) => {
-                    console.log({ currentActiveScene, gameMapLayout });
                     if (
                         currentActiveScene &&
                         typeof currentActiveScene === "function"
@@ -86,7 +84,6 @@ export const PhaserGame = forwardRef<IRefPhaserGame, IProps>(
             EventBus.on(
                 "game-map-initialization",
                 (scene_instance: Phaser.Scene) => {
-                  console.log({gameMapLayout})
                     setGameMapLayout(scene_instance, gameMapLayout);
                 }
             );

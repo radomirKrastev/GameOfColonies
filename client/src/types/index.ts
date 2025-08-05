@@ -1,0 +1,1 @@
+export * from './point-or-pair.type';

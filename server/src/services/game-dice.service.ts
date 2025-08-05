@@ -15,6 +15,10 @@ const rollDices = async (gameId: string, userId: string): Promise<IDicesResponse
   const currentTurn = currentGame.gameTurns[currentGame.gameTurns.length - 1];
 
   console.log('START GAME SERVICE', currentGame.creator === userId);
+  
+  if(currentGame.gameTurns.length < currentGame.players.length * 2) {
+    throw new Error('You can not roll the dices before all players have placed their settlements');
+  }
 
   if (currentTurn.playerId !== userId) {
     throw new Error('It is not your turn');
@@ -52,7 +56,7 @@ const getDices = async (gameId: string): Promise<IDicesResponseDto> => {
 };
 
 
-export const gameActionsService = {
+export const gameDiceService = {
   rollDices,
   getDices
 };

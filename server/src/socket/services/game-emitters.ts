@@ -1,20 +1,6 @@
 import { Socket } from "socket.io";
 import { io } from "../socket";
 
-// export const emitAvailableGames = (socket: Socket) => {
-//   const allRooms: { room: string, playersCount: number }[] = [];
-
-//   // io.sockets.adapter.rooms.forEach((value, key, map) => {
-//   //   console.log('key: ', key, 'value: ', value.values().next().value)
-
-//   //   if (key !== value.values().next().value) {
-//   //     allRooms.push({ room: key, playersCount: value.size });
-//   //   }
-//   // });
-//   // console.log('emit Available games', { allRooms })
-//   socket.broadcast.emit('game:all-available', allRooms);
-// };
-
 export const createGameAndEmit = (socket: Socket, room: string) => {
   console.log('try create-room', {room}, socket.rooms.size);
   if (socket.rooms.size < 2) {
@@ -54,4 +40,11 @@ export const emitTurnFinished = (socket: Socket, room: string) => {
   console.log('turn finished', {room});
   //TODO add check if socket is in this room
   io.to(room).emit('turn:finished');  
+};
+
+// Possible for extracting in a separate file
+export const emitNewConstruction = (socket: Socket, room: string) => {
+  console.log('new construction', {room});
+  //TODO add check if socket is in this room
+  io.to(room).emit('construction:new');  
 };

@@ -8,7 +8,8 @@ import { rollDices, fetchDices } from "../services/game-map.service.ts";
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
 import { useAppContext } from "./App.tsx";
-import { useGameContext } from "./Game.tsx";
+import { useGameContext } from "./Game/Game.tsx";
+import { INITIAL_PLACEMENT } from "../enums/initial-placement.enum.ts";
 
 function Dices() {
   const params = useParams();
@@ -42,7 +43,10 @@ function Dices() {
   }
 
   return (
-    <button onClick={rollDicesHandler} className={`dices-button ${isPlayerTurn && !turn?.isRolled ? "active" : ""}`}>
+    <button 
+      onClick={rollDicesHandler} 
+      className={`dices-button ${isPlayerTurn && turn?.initialPlacement === INITIAL_PLACEMENT.COMPLETED && !turn?.isRolled ? "active" : ""}`}
+    >
       <div>
         <img src={diceMap[dices.diceOne]} width={60} height={60} />
         <img src={diceMap[dices.diceTwo]} width={60} height={60} />

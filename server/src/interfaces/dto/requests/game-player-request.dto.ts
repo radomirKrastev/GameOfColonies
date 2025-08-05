@@ -1,0 +1,1 @@
+export interface GamePlayerParams { gameId: string, id: string }

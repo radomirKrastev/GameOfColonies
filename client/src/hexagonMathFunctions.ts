@@ -303,7 +303,6 @@ export const getAllRoadPositions = (
     }
 
     return roads;
-    console.log({ roads });
 };
 
 

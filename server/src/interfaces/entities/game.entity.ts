@@ -1,4 +1,6 @@
 import { GAME_STATUS } from "../../enums"
+import { IGameAvailableSpots } from "../game-available-spots.interface"
+import { IGameConstructions } from "../game-constructions.interface"
 import { IGameMap } from "../game-map.interface"
 import { IGameTurn } from "../game-turn.interface"
 import { IPlayer } from "../player.interface"
@@ -16,6 +18,8 @@ export interface IGameEntity {
   map: IGameMap
   // playerTurn: string | null,
   // currentRoll: { diceOne: number, diceTwo: number } | null,
-  gameTurns: IGameTurn[]; 
+  gameTurns: IGameTurn[],
+  availableSpots: IGameAvailableSpots,
+  constructions: IGameConstructions,
 }
   

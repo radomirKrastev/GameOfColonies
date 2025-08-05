@@ -57,8 +57,7 @@ export class GameMapScene extends Scene implements GameMap {
     for (let t = 0; t < this.tiles.length; t++) {
       const tile = this.tiles[t];
       const corners = tile.corners;
-      console.log({ tile })
-      console.log({ corners })
+
       const graphics = new GameObjects.Graphics(this);
 
       graphics.setDefaultStyles({
@@ -96,37 +95,38 @@ export class GameMapScene extends Scene implements GameMap {
       // resourceValueImage.setDisplaySize(45, 45);
       // resourceValueImage.setMask(mask);
 
-      const isHighChance = tile.value === 8 || tile.value === 6;
+      //THIS IS TO NOT BE DELETED FOR NOW 
+      // const isHighChance = tile.value === 8 || tile.value === 6;
 
-      if (tile.value) {
-        this.add.text(
-          tile.center.x - 15,
-          tile.center.y - 15,
-          `${tile.value}`,
-          {
-            fontFamily: "Arial Black",
-            fontSize: 30,
-            color:  isHighChance ? "#f50505" : "#ffffff",
-            stroke: "#000000",
-            strokeThickness: 8,
-            align: "center",
-          }
-        );
+      // if (tile.value) {
+      //   this.add.text(
+      //     tile.center.x - 15,
+      //     tile.center.y - 15,
+      //     `${tile.value}`,
+      //     {
+      //       fontFamily: "Arial Black",
+      //       fontSize: 30,
+      //       color:  isHighChance ? "#f50505" : "#ffffff",
+      //       stroke: "#000000",
+      //       strokeThickness: 8,
+      //       align: "center",
+      //     }
+      //   );
 
-        this.add.text(
-          tile.center.x - 10,
-          tile.center.y + 20,
-          `${diceRollProbability[tile.value]}`,
-          {
-            fontFamily: "Arial Black",
-            fontSize: 12,
-            color:  isHighChance ? "#f50505" : "#ffffff",
-            stroke: "#000000",
-            strokeThickness: 3,
-            align: "center",
-          }
-        );
-      }
+      //   this.add.text(
+      //     tile.center.x - 10,
+      //     tile.center.y + 20,
+      //     `${diceRollProbability[tile.value]}`,
+      //     {
+      //       fontFamily: "Arial Black",
+      //       fontSize: 12,
+      //       color:  isHighChance ? "#f50505" : "#ffffff",
+      //       stroke: "#000000",
+      //       strokeThickness: 3,
+      //       align: "center",
+      //     }
+      //   );
+      // }
 
       // Add graphics to the scene
       this.add.existing(graphics);

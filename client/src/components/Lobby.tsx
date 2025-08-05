@@ -21,14 +21,10 @@ function Lobby() {
     fetchGameHandler();
 
     socket.on("game:user-joined", (arg) => {
-      console.log(arg)
-      console.log(`console.log: ${JSON.stringify(arg, null, 2)}`);
       fetchGameHandler();
     });
 
     socket.on("game:started", (arg) => {
-      console.log(arg)
-      console.log('game started');
       navigate(`/game/${params.lobbyId}`);
     });
 
@@ -41,13 +37,11 @@ function Lobby() {
 
   const fetchGameHandler = async () => {
     const currentGame = await fetchGame(params.lobbyId!);
-    console.log({ game: currentGame });
     setGames(currentGame);
   }
 
   const startGameHandler = async () => {
-    const currentGame = await startGame(params.lobbyId!);
-    console.log({ currentGame });
+    await startGame(params.lobbyId!);
   }
 
   const leaveRoom = e => {

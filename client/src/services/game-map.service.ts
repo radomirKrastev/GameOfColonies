@@ -1,11 +1,13 @@
-import { GameMapLayout, ICreateGameRequest, IDicesResponseDto, IGameResponse, IPlayer, ITurn } from "../interfaces";
+import { GameMapLayout, ICreateGameRequest, IDicesResponseDto, IGameResponse, IPlayer, ITurn, Point } from "../interfaces";
+import { IGameAvailableSpots } from "../interfaces/game-available-spots.interface";
+import { IGameConstructions } from "../interfaces/game-constructions.interface";
 
 export const fetchGames = async (): Promise<IGameResponse[]> => {
   try {
     const res = await fetch("https://gameofcolonies.com/api/games");
-    console.log({ res })
+    // console.log({ res })
     const response = await res.json();
-    console.log({ response })
+    // console.log({ response })
     return response;
   } catch (error) {
     console.log("Bad request");
@@ -17,7 +19,7 @@ export const fetchGameMapLayout = async (gameId: string): Promise<GameMapLayout>
   try {
     const response = await fetch(`https://gameofcolonies.com/api/games/${gameId}/map`);
     const gameMapLayout = await response.json();
-    console.log({ gameMapLayout })
+    // console.log({ gameMapLayout })
     return gameMapLayout;
   } catch (error) {
     console.log("Bad request");
@@ -35,7 +37,7 @@ export const createGame = async (data: ICreateGameRequest): Promise<IGameRespons
       body: JSON.stringify(data)
     });
     const response = await res.json();
-    console.log({ response })
+    // console.log({ response })
     return response;
   } catch (error) {
     console.log("Bad request");
@@ -52,7 +54,7 @@ export const joinGame = async (gameId: string): Promise<IGameResponse> => {
       }
     });
     const response = await res.json();
-    console.log({ response })
+    // console.log({ response })
     return response;
   } catch (error) {
     console.log("Bad request");
@@ -63,9 +65,9 @@ export const joinGame = async (gameId: string): Promise<IGameResponse> => {
 export const fetchGame = async (gameId: string): Promise<IGameResponse> => {
   try {
     const res = await fetch(`https://gameofcolonies.com/api/games/${gameId}`);
-    console.log({ res })
+    // console.log({ res })
     const response = await res.json();
-    console.log({ response })
+    // console.log({ response })
     return response;
   } catch (error) {
     console.log("Bad request");
@@ -137,9 +139,9 @@ export const fetchPlayer = async (gameId: string, userId: string): Promise<IPlay
         'Content-type': 'application/json',
       }
     });
-    console.log({ res })
+    // console.log({ res })
     const response = await res.json();
-    console.log({ response })
+    // console.log({ response })
     return response;
   } catch (error) {
     console.log("Bad request");
@@ -155,9 +157,9 @@ export const fetchTurn = async (gameId: string): Promise<ITurn> => {
         'Content-type': 'application/json',
       }
     });
-    console.log({ res })
+    // console.log({ res })
     const response = await res.json();
-    console.log({ response })
+    // console.log({ response })
     return response;
   } catch (error) {
     console.log("Bad request");
@@ -173,7 +175,25 @@ export const endTurn = async (gameId: string): Promise<ITurn> => {
         'Content-type': 'application/json',
       }
     });
-    console.log({ res })
+    // console.log({ res })
+    const response = await res.json();
+    // console.log({ response })
+    return response;
+  } catch (error) {
+    console.log("Bad request");
+    throw new Error("...");
+  }
+};
+
+export const fetchAvailableSpots = async (gameId: string): Promise<IGameAvailableSpots> => {
+  try {
+    const res = await fetch(`https://gameofcolonies.com/api/games/${gameId}/available-spots`, {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+      }
+    });
+    // console.log({ res })
     const response = await res.json();
     console.log({ response })
     return response;
@@ -183,3 +203,77 @@ export const endTurn = async (gameId: string): Promise<ITurn> => {
   }
 };
 
+export const fetchConstructions = async (gameId: string): Promise<IGameConstructions> => {
+  try {
+    const res = await fetch(`https://gameofcolonies.com/api/games/${gameId}/constructions`, {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+      }
+    });
+    // console.log({ res })
+    const response = await res.json();
+    // console.log({ response })
+    return response;
+  } catch (error) {
+    console.log("Bad request");
+    throw new Error("...");
+  }
+};
+
+export const buildSettlement = async (gameId: string, data: { coordinates: Point }): Promise<IGameConstructions> => {
+  try {
+    const res = await fetch(`https://gameofcolonies.com/api/games/${gameId}/constructions/settlement`, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    });
+    // console.log({ res })
+    const response = await res.json();
+    // console.log({ response })
+    return response;
+  } catch (error) {
+    console.log("Bad request");
+    throw new Error("...");
+  }
+};
+
+export const buildRoad = async (gameId: string, data: { coordinates: { a: Point; b: Point } }): Promise<IGameConstructions> => {
+  try {
+    const res = await fetch(`https://gameofcolonies.com/api/games/${gameId}/constructions/road`, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    });
+    // console.log({ res })
+    const response = await res.json();
+    // console.log({ response })
+    return response;
+  } catch (error) {
+    console.log("Bad request");
+    throw new Error("...");
+  }
+};
+
+export const buildCity = async (gameId: string, data: { coordinates: Point }): Promise<IGameConstructions> => {
+  try {
+    const res = await fetch(`https://gameofcolonies.com/api/games/${gameId}/constructions/city`, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    });
+    // console.log({ res })
+    const response = await res.json();
+    // console.log({ response })
+    return response;
+  } catch (error) {
+    console.log("Bad request");
+    throw new Error("...");
+  }
+};

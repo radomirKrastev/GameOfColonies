@@ -21,13 +21,10 @@ function App() {
   
   useEffect(() => {
     fetchGamesAndSocketConnectHandler();
-    console.log(1)
-
   }, []);
 
   const fetchGamesAndSocketConnectHandler = async () => {
     const games = await fetchGames();
-    console.log({ games });
     setGames(games);
 
     const socketInstance = io("https://gameofcolonies.com", {
@@ -39,8 +36,6 @@ function App() {
     });
 
     socketInstance.on("game:all-available", (arg) => {
-      console.log(arg)
-      console.log(`console.log: ${JSON.stringify(arg, null, 2)}`);
       fetchGamesHandler();
     });
 
@@ -49,7 +44,6 @@ function App() {
 
   const fetchGamesHandler = async () => {
     const games = await fetchGames();
-    console.log({ games });
     setGames(games);
   }
 

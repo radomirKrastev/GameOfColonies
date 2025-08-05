@@ -8,3 +8,4 @@ export * from './tile.interface';
 export * from './game-map.interface';
 export * from './player.interface';
 export * from './game-turn.interface';
+export * from './game-constructions.interface';

@@ -276,3 +276,103 @@ export const getAllRoadPositions = (
 
   return roads;
 };
+
+export const getImpossibleSettlements = (
+  coordinates: Point,
+  possibleSettlementTargets: Point[]
+) => {
+  const impossibleSettlements = possibleSettlementTargets.filter(
+    (corner) =>
+      (Math.abs(corner.x - coordinates.x) < 1 &&
+        corner.y === coordinates.y - 80) ||
+      (Math.abs(corner.x - coordinates.x) < 1 &&
+        corner.y === coordinates.y + 80) ||
+      (Math.abs(corner.x - coordinates.x - 70) < 1 &&
+        corner.y === coordinates.y - 40) ||
+      (Math.abs(corner.x - coordinates.x - 70) < 1 &&
+        corner.y === coordinates.y + 40) ||
+      (Math.abs(corner.x - coordinates.x + 70) < 1 &&
+        corner.y === coordinates.y - 40) ||
+      (Math.abs(corner.x - coordinates.x + 70) < 1 &&
+        corner.y === coordinates.y + 40)
+  );
+
+  impossibleSettlements.push(coordinates)
+
+  return impossibleSettlements;
+};
+
+export const getPossibleRoadExtensions = (
+  coordinates: Point,
+  uniqueHexagonCornerCoordinates: Point[],
+  constructedRoads: Road[],
+): Road[] => {
+  const potentialRoadExtensions = uniqueHexagonCornerCoordinates.filter(
+    (corner) =>
+      (Math.abs(corner.x - coordinates.x) < 1 &&
+        corner.y === coordinates.y - 80) ||
+      (Math.abs(corner.x - coordinates.x) < 1 &&
+        corner.y === coordinates.y + 80) ||
+      (Math.abs(corner.x - coordinates.x - 70) < 1 &&
+        corner.y === coordinates.y - 40) ||
+      (Math.abs(corner.x - coordinates.x - 70) < 1 &&
+        corner.y === coordinates.y + 40) ||
+      (Math.abs(corner.x - coordinates.x + 70) < 1 &&
+        corner.y === coordinates.y - 40) ||
+      (Math.abs(corner.x - coordinates.x + 70) < 1 &&
+        corner.y === coordinates.y + 40)
+  ).map((corner) => {
+    return {
+      a: {
+        x: coordinates.x,
+        y: coordinates.y,
+      },
+      b: {
+        x: corner.x,
+        y: corner.y,
+      },
+    };
+  });
+  // console.log('constructedRoads', JSON.stringify(constructedRoads, null, 2));
+  // console.log('potentialRoadExtensions', JSON.stringify(potentialRoadExtensions, null, 2));
+
+  // Filter out already constructed roads
+  const possibleRoadExtensions = potentialRoadExtensions.filter(
+    (road) => !constructedRoads.some(
+      (constructedRoad) =>
+        ((constructedRoad.a.x === road.a.x && constructedRoad.a.y === road.a.y &&
+         constructedRoad.b.x === road.b.x && constructedRoad.b.y === road.b.y) ) ||
+        ((constructedRoad.b.x === road.a.x && constructedRoad.b.y === road.a.y &&
+         constructedRoad.a.x === road.b.x && constructedRoad.a.y === road.b.y))
+    )
+  );  
+
+  return possibleRoadExtensions;
+};
+
+export const isSettlementPossible = (
+  coordinates: Point,
+  settlementsConstructed: Point[]
+) => {
+  if (settlementsConstructed.some(c => coordinates.x === c.x && coordinates.y === c.y)) {
+    return false;
+  }
+
+  const isPossible = !settlementsConstructed.some(
+    (corner) =>
+      (Math.abs(corner.x - coordinates.x) < 1 &&
+        corner.y === coordinates.y - 80) ||
+      (Math.abs(corner.x - coordinates.x) < 1 &&
+        corner.y === coordinates.y + 80) ||
+      (Math.abs(corner.x - coordinates.x - 70) < 1 &&
+        corner.y === coordinates.y - 40) ||
+      (Math.abs(corner.x - coordinates.x - 70) < 1 &&
+        corner.y === coordinates.y + 40) ||
+      (Math.abs(corner.x - coordinates.x + 70) < 1 &&
+        corner.y === coordinates.y - 40) ||
+      (Math.abs(corner.x - coordinates.x + 70) < 1 &&
+        corner.y === coordinates.y + 40)
+  );
+
+  return isPossible;
+};

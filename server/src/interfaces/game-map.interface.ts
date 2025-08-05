@@ -5,7 +5,7 @@ import { Tile } from "./tile.interface";
 export interface IGameMap {
   gridHexesCornersMap: Point[][]
   uniqueHexagonCornerCoordinates: Point[]
-  roadPositions: Road[]
-  tiles: Tile[]
+  roadPositions: Road[] // remove when possible roads are implemented
+  tiles: Tile[],
 };
 
