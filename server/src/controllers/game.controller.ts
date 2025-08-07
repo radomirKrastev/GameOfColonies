@@ -1,6 +1,6 @@
 import express from "express";
-import { gameDiceService, gameService, gamePlacementService } from "../services";
-import { GameIdParams, GamePlayerParams, Point } from "../interfaces";
+import { gameDiceService, gameService, gamePlacementService, gameTurnService } from "../services";
+import { GameIdParams, GamePlayerParams } from "../interfaces";
 import type { Request } from "express";
 
 const router = express.Router({ mergeParams: true });
@@ -89,7 +89,7 @@ router.get("/players/:id", async (req: Request<GamePlayerParams>, res, next) => 
 router.get("/turn", async (req: Request<GameIdParams>, res, next) => {
   const gameId = req.params.gameId;
   try {
-    const response = await gameService.getTurn(gameId);
+    const response = await gameTurnService.getTurn(gameId);
     res.json(response)
   } catch (error) {
     next(error)
@@ -101,7 +101,7 @@ router.post("/turn", async (req: Request<GameIdParams>, res, next) => {
   const userId = req.cookies.userId;
 
   try {
-    const response = await gameService.finishTurn(gameId, userId);
+    const response = await gameTurnService.finishTurn(gameId, userId);
     res.json(response)
   } catch (error) {
     next(error)
@@ -119,9 +119,5 @@ router.get("/available-spots", async (req: Request<GameIdParams>, res, next) => 
     next(error)
   }
 });
-
-// 1. User host clicks and creates a game
-// 2. User player clicks and joins a game   If game is not started yet there is lobby screen / If started player cannot join
-// 3. User host starts game - everybody makes request which gets the game map and game is visualised
 
 export default router;
