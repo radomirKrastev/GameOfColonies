@@ -82,8 +82,16 @@ const getConstructions = async (gameId: string, userId: string): Promise<IGameCo
 const buildSettlement = async (gameId: string, userId: string, coordinates: Point): Promise<IGameAvailableSpots> => {
   const currentGame = await gameMapRepository.getGame(gameId);
 
-  const availableSpots = await getAvailableSpots(gameId, userId, currentGame);
   const constructions = currentGame.constructions;
+
+  const playerSettlementsCount = constructions.settlements.filter(x => x.player === userId).length;
+  const playerRoadsCount = constructions.roads.filter(x => x.player === userId).length;
+  
+  if (playerSettlementsCount <= 2 && playerSettlementsCount + 1 - playerRoadsCount > 1) {
+    throw new Error('Cannot build settlement');
+  }
+
+  const availableSpots = await getAvailableSpots(gameId, userId, currentGame);
 
   const availableSettlementsCoordinates = availableSpots.settlements.map(spot => spot.coordinates);
   const availableCities = availableSpots.cities;
@@ -139,11 +147,25 @@ const buildSettlement = async (gameId: string, userId: string, coordinates: Poin
   return updatedGame.availableSpots;
 };
 
-const buildRoad = async (gameId: string, userId: string, coordinates: { a: Point; b: Point }): Promise<IGameAvailableSpots> => {
+const isSameRoad = (road: Road, potentialNewRoad: Road): boolean => {
+  return road.a.x === potentialNewRoad.a.x && road.a.y === potentialNewRoad.a.y &&
+    road.b.x === potentialNewRoad.b.x && road.b.y === potentialNewRoad.b.y ||
+    road.b.x === potentialNewRoad.a.x && road.b.y === potentialNewRoad.a.y &&
+    road.a.x === potentialNewRoad.b.x && road.a.y === potentialNewRoad.b.y;
+}
+
+const buildRoad = async (gameId: string, userId: string, coordinates: Road): Promise<IGameAvailableSpots> => {
   const currentGame = await gameMapRepository.getGame(gameId);
+  const constructions = currentGame.constructions;
+
+  const playerSettlementsCount = constructions.settlements.filter(x => x.player === userId).length;
+  const playerRoadsCount = constructions.roads.filter(x => x.player === userId).length;
+  
+  if (playerSettlementsCount < 2 && playerRoadsCount === playerSettlementsCount) {
+    throw new Error('Cannot build road');
+  }
 
   const availableSpots = await getAvailableSpots(gameId, userId, currentGame);
-  const constructions = currentGame.constructions;
 
   const availableCities = availableSpots.cities;
   const availableRoads = availableSpots.roads;
@@ -189,21 +211,11 @@ const buildRoad = async (gameId: string, userId: string, coordinates: { a: Point
   const possibleRoadExtensions = possibleRoadExtensionsOne.concat(possibleRoadExtensionsTwo);
 
   const updatedAvailableRoads = availableRoads.slice().filter(available =>
-    !(
-      (available.coordinates.a.x === coordinates.a.x && available.coordinates.a.y === coordinates.a.y &&
-        available.coordinates.b.x === coordinates.b.x && available.coordinates.b.y === coordinates.b.y) ||
-      (available.coordinates.b.x === coordinates.a.x && available.coordinates.b.y === coordinates.a.y &&
-        available.coordinates.a.x === coordinates.b.x && available.coordinates.a.y === coordinates.b.y)
-    )
+    !isSameRoad(available.coordinates, coordinates)
   );
 
   possibleRoadExtensions.forEach(road => {
-    const roadExists = updatedAvailableRoads.findIndex(existingRoad =>
-      (existingRoad.coordinates.a.x === road.a.x && existingRoad.coordinates.a.y === road.a.y &&
-        existingRoad.coordinates.b.x === road.b.x && existingRoad.coordinates.b.y === road.b.y) ||
-      (existingRoad.coordinates.b.x === road.a.x && existingRoad.coordinates.b.y === road.a.y &&
-        existingRoad.coordinates.a.x === road.b.x && existingRoad.coordinates.a.y === road.b.y)
-    );
+    const roadExists = updatedAvailableRoads.findIndex(existingRoad => isSameRoad(existingRoad.coordinates, road));
 
     if (roadExists === -1) {
       updatedAvailableRoads.push({ coordinates: road, availableFor: [userId] });
@@ -247,10 +259,17 @@ const buildRoad = async (gameId: string, userId: string, coordinates: { a: Point
 
 const buildCity = async (gameId: string, userId: string, coordinates: Point): Promise<IGameAvailableSpots> => {
   const currentGame = await gameMapRepository.getGame(gameId);
-
-  const availableSpots = await getAvailableSpots(gameId, userId, currentGame);
   const constructions = currentGame.constructions;
 
+  const playerSettlementsCount = constructions.settlements.filter(x => x.player === userId).length;
+  const playerRoadsCount = constructions.roads.filter(x => x.player === userId).length;
+  
+  if (playerSettlementsCount < 2 || playerRoadsCount < 2) {
+    throw new Error('Cannot build city');
+  }
+
+  const availableSpots = await getAvailableSpots(gameId, userId, currentGame);
+  
   const availableCities = availableSpots.cities;
   const availableRoads = availableSpots.roads;
   const availableSettlements = availableSpots.settlements;
