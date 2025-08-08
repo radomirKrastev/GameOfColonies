@@ -44,8 +44,8 @@ function Dices() {
 
   return (
     <button 
-      onClick={rollDicesHandler} 
-      className={`dices-button ${isPlayerTurn && turn?.initialPlacement === INITIAL_PLACEMENT.COMPLETED && !turn?.isRolled ? "active" : ""}`}
+      onClick={rollDicesHandler}
+      className={`dices-button ${isPlayerTurn && !turn?.initialPlacement && !turn?.isRolled ? "active" : ""}`}
     >
       <div>
         <img src={diceMap[dices.diceOne]} width={60} height={60} />

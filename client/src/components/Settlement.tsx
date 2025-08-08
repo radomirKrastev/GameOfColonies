@@ -1,6 +1,5 @@
 import { useGameContext } from "./Game/Game";
 import { getUserId } from "../utils";
-import { INITIAL_PLACEMENT } from "../enums";
 
 function Settlement() {
   const {
@@ -9,13 +8,13 @@ function Settlement() {
     availableSpots,
     turn,
     settlements,
+    roads
   } = useGameContext();
 
   const shouldBuildInitialSettlement = () => {
     const playerSettlements = settlements.filter(s => s.player === getUserId());
-    return isPlayerTurn &&
-      (turn?.initialPlacement === INITIAL_PLACEMENT.FIRST && playerSettlements.length < 1) ||
-      turn?.initialPlacement === INITIAL_PLACEMENT.SECOND && playerSettlements.length < 2;
+    const playerRoads = roads.filter(r => r.player === getUserId());
+    return isPlayerTurn && turn?.initialPlacement && playerSettlements.length === playerRoads.length;
   };
 
   const chooseSettlement = () => {

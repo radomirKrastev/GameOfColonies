@@ -4,7 +4,6 @@ import {
 } from '../repository';
 import { emitTurnFinished } from "../socket/services";
 import { usersService } from "./users.service";
-import { INITIAL_PLACEMENT } from "../enums";
 
 const getTurn = async (gameId: string): Promise<IGameTurnResponseDto> => {
   const currentGame = await gameMapRepository.getGame(gameId);
@@ -19,7 +18,7 @@ const getTurn = async (gameId: string): Promise<IGameTurnResponseDto> => {
     playerId: res.playerId,
     isTurnEnded: res.isTurnEnded,
     isRolled: res.roll !== null,
-    initialPlacement: currentGame.gameTurns[currentGame.gameTurns.length - 1].initialPlacement
+    initialPlacement: currentGame.gameTurns.length <= currentGame.players.length,
   };
 };
 
@@ -51,20 +50,12 @@ const finishTurn = async (gameId: string, userId: string): Promise<IGameTurnResp
     nextPlayerIndex = (newTurnPlayerIndex + 1) % currentGame.players.length;
   }
 
-  let initialPlacement = INITIAL_PLACEMENT.COMPLETED;
-
-  if (currentGame.gameTurns.length < currentGame.players.length) {
-    initialPlacement = INITIAL_PLACEMENT.FIRST;
-  } else if (currentGame.gameTurns.length < currentGame.players.length * 2) {
-    initialPlacement = INITIAL_PLACEMENT.SECOND;
-  }
-
   const newTurn = {
     playerId: currentGame.players[newTurnPlayerIndex].userId,
     nextPlayerIndex,
     roll: null,
     isTurnEnded: false,
-    initialPlacement,
+    initialPlacement: currentGame.gameTurns.length + 1 <= currentGame.players.length,
   };
   currentGame.gameTurns.push(newTurn);
 
@@ -82,7 +73,7 @@ const finishTurn = async (gameId: string, userId: string): Promise<IGameTurnResp
     playerId: res.playerId,
     isTurnEnded: res.isTurnEnded,
     isRolled: res.roll !== null,
-    initialPlacement: updatedGame.gameTurns[updatedGame.gameTurns.length - 1].initialPlacement
+    initialPlacement: currentGame.gameTurns.length + 1 <= currentGame.players.length,
   };
 };
 

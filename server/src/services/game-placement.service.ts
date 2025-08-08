@@ -56,7 +56,8 @@ const getInitialAvailableSpots = async (gameId: string, userId: string, currentG
       roads.push({ coordinates: element, availableFor: [userId] });
     });
   } else if (currentGame.constructions.settlements.filter(x => x.player === userId).length === 2) {
-    const userSettlement = userSettlements.find(settlement => settlement.isSecond);
+    // const userSettlement = userSettlements.find(settlement => settlement.isSecond);
+    const userSettlement = userSettlements[1];
     const coordinates = userSettlement!.coordinates;
     const possibleRoadExtensions: Road[] =
       getPossibleRoadExtensions(coordinates, currentGame.map.uniqueHexagonCornerCoordinates, buildRoadsCoordinates)
@@ -119,14 +120,14 @@ const buildSettlement = async (gameId: string, userId: string, coordinates: Poin
     cities: updatedAvailableCities,
   };
 
-  const isSecondSettlement = constructions.settlements.filter(x => x.player === userId).length == 1;
+  // const isSecondSettlement = constructions.settlements.filter(x => x.player === userId).length == 1;
 
   const updatedConstructions: IGameConstructions = {
     settlements: constructions.settlements.concat({
       coordinates,
       player: userId,
       color: currentGame.players.find(player => player.userId === userId)!.color,
-      isSecond: isSecondSettlement,
+      // isSecond: isSecondSettlement,
     }),
     roads: constructions.roads,
     cities: constructions.cities,

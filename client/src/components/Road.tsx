@@ -22,9 +22,7 @@ function Road() {
   const shouldBuildInitialRoad = () => {
     const playerSettlements = settlements.filter(s => s.player === getUserId());
     const playerRoads = roads.filter(r => r.player === getUserId());
-    return isPlayerTurn &&
-      (turn?.initialPlacement === INITIAL_PLACEMENT.FIRST && playerRoads.length < 1 && playerSettlements.length === 1) ||
-      (turn?.initialPlacement === INITIAL_PLACEMENT.SECOND && playerRoads.length < 2 && playerSettlements.length === 2);
+    return isPlayerTurn && playerRoads.length < playerSettlements.length;
   };
 
   return (

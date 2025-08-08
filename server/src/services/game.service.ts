@@ -6,7 +6,7 @@ import {
 import {
   gameMapRepository
 } from '../repository';
-import { emitTurnFinished, emitGameStarted, joinGameAndEmit } from "../socket/services";
+import { emitGameStarted, joinGameAndEmit } from "../socket/services";
 import { usersService } from "./users.service";
 import { GAME_STATUS, INITIAL_PLACEMENT } from "../enums";
 
@@ -56,7 +56,7 @@ const startGame = async (gameId: string, userId: string): Promise<IGameResponseD
       nextPlayerIndex,
       roll: null,
       isTurnEnded: false,
-      initialPlacement: INITIAL_PLACEMENT.FIRST,
+      initialPlacement: true,
     }];
 
     const settlements = currentGame.map.uniqueHexagonCornerCoordinates.map(coordinates => ({
